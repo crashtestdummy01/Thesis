@@ -1,0 +1,3 @@
+export ROS_DOMAIN_ID=94
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+

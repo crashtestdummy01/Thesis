@@ -1,0 +1,127 @@
+[INFO] [launch]: All log files can be found below /home/ergodic_group/.ros/log/2026-07-13-15-21-30-717039-cray-429926
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [robot_state_publisher-1]: process started with pid [429927]
+[INFO] [ros2_control_node-2]: process started with pid [429929]
+[INFO] [joint_state_publisher-3]: process started with pid [429931]
+[INFO] [spawner-4]: process started with pid [429933]
+[INFO] [spawner-5]: process started with pid [429935]
+[INFO] [spawner-6]: process started with pid [429937]
+[INFO] [spawner-7]: process started with pid [429939]
+[INFO] [spawner-8]: process started with pid [429941]
+[INFO] [spawner-9]: process started with pid [429943]
+[INFO] [rviz2-10]: process started with pid [429945]
+[robot_state_publisher-1] [INFO] [1783948890.960405512] [robot_state_publisher]: got segment base
+[robot_state_publisher-1] [INFO] [1783948890.960441582] [robot_state_publisher]: got segment fr3_link0
+[robot_state_publisher-1] [INFO] [1783948890.960448092] [robot_state_publisher]: got segment fr3_link0_accelerometer_bottom
+[robot_state_publisher-1] [INFO] [1783948890.960453152] [robot_state_publisher]: got segment fr3_link0_accelerometer_top
+[robot_state_publisher-1] [INFO] [1783948890.960458002] [robot_state_publisher]: got segment fr3_link1
+[robot_state_publisher-1] [INFO] [1783948890.960462802] [robot_state_publisher]: got segment fr3_link1_accelerometer_bottom
+[robot_state_publisher-1] [INFO] [1783948890.960467582] [robot_state_publisher]: got segment fr3_link1_accelerometer_top
+[robot_state_publisher-1] [INFO] [1783948890.960472212] [robot_state_publisher]: got segment fr3_link2
+[robot_state_publisher-1] [INFO] [1783948890.960477062] [robot_state_publisher]: got segment fr3_link2_accelerometer_bottom
+[robot_state_publisher-1] [INFO] [1783948890.960481792] [robot_state_publisher]: got segment fr3_link2_accelerometer_top
+[robot_state_publisher-1] [INFO] [1783948890.960486452] [robot_state_publisher]: got segment fr3_link3
+[robot_state_publisher-1] [INFO] [1783948890.960491382] [robot_state_publisher]: got segment fr3_link3_accelerometer_bottom
+[robot_state_publisher-1] [INFO] [1783948890.960496132] [robot_state_publisher]: got segment fr3_link3_accelerometer_top
+[robot_state_publisher-1] [INFO] [1783948890.960500842] [robot_state_publisher]: got segment fr3_link4
+[robot_state_publisher-1] [INFO] [1783948890.960505572] [robot_state_publisher]: got segment fr3_link4_accelerometer_bottom
+[robot_state_publisher-1] [INFO] [1783948890.960510302] [robot_state_publisher]: got segment fr3_link4_accelerometer_top
+[robot_state_publisher-1] [INFO] [1783948890.960515082] [robot_state_publisher]: got segment fr3_link5
+[robot_state_publisher-1] [INFO] [1783948890.960519772] [robot_state_publisher]: got segment fr3_link5_accelerometer_bottom
+[robot_state_publisher-1] [INFO] [1783948890.960524432] [robot_state_publisher]: got segment fr3_link5_accelerometer_top
+[robot_state_publisher-1] [INFO] [1783948890.960529092] [robot_state_publisher]: got segment fr3_link6
+[robot_state_publisher-1] [INFO] [1783948890.960533762] [robot_state_publisher]: got segment fr3_link7
+[robot_state_publisher-1] [INFO] [1783948890.960538412] [robot_state_publisher]: got segment fr3_link8
+[ros2_control_node-2] [WARN] [1783948890.969363914] [controller_manager]: [Deprecated] Passing the robot description parameter directly to the control_manager node is deprecated. Use '~/robot_description' topic from 'robot_state_publisher' instead.
+[ros2_control_node-2] text not specified in the prefix tag
+[ros2_control_node-2] [INFO] [1783948890.969683774] [resource_manager]: Loading hardware 'FrankaHardwareInterface' 
+[ros2_control_node-2] [INFO] [1783948890.970109204] [resource_manager]: Initialize hardware 'FrankaHardwareInterface' 
+[ros2_control_node-2] [WARN] [1783948890.970130524] [mock_generic_system]: Parameter 'fake_sensor_commands' has been deprecated from usage. Use'mock_sensor_commands' instead.
+[ros2_control_node-2] [INFO] [1783948890.970162715] [resource_manager]: Successful initialization of hardware 'FrankaHardwareInterface'
+[ros2_control_node-2] [INFO] [1783948890.970233605] [resource_manager]: 'configure' hardware 'FrankaHardwareInterface' 
+[ros2_control_node-2] [INFO] [1783948890.970239055] [resource_manager]: Successful 'configure' of hardware 'FrankaHardwareInterface'
+[ros2_control_node-2] [INFO] [1783948890.970250705] [resource_manager]: 'activate' hardware 'FrankaHardwareInterface' 
+[ros2_control_node-2] [INFO] [1783948890.970254655] [resource_manager]: Successful 'activate' of hardware 'FrankaHardwareInterface'
+[ros2_control_node-2] [WARN] [1783948890.972084285] [controller_manager]: Unable to lock the memory: 'No proper privileges to lock the memory!'
+[ros2_control_node-2] [INFO] [1783948890.972102345] [controller_manager]: update rate is 1000 Hz
+[ros2_control_node-2] [INFO] [1783948890.972109135] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 50
+[ros2_control_node-2] [INFO] [1783948890.972302585] [controller_manager]: Successful set up FIFO RT scheduling policy with priority 50.
+[ros2_control_node-2] [INFO] [1783948891.209386692] [controller_manager]: Loading controller 'gravity_compensation'
+[ros2_control_node-2] [WARN] [1783948891.221535413] [gravity_compensation]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.
+[ros2_control_node-2] [INFO] [1783948891.223985944] [controller_manager]: Loading controller 'joint_trajectory_controller'
+[joint_state_publisher-3] [INFO] [1783948891.230925004] [joint_state_publisher]: Waiting for robot_description to be published on the robot_description topic...
+[ros2_control_node-2] [WARN] [1783948891.231498984] [joint_trajectory_controller]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.
+[ros2_control_node-2] [INFO] [1783948891.233777105] [controller_manager]: Loading controller 'cartesian_impedance_controller'
+[spawner-7] [INFO] [1783948891.255909349] [spawner_gravity_compensation]: [94mLoaded [1mgravity_compensation[0m
+[ros2_control_node-2] terminate called after throwing an instance of 'rclcpp::ParameterTypeException'
+[ros2_control_node-2]   what():  expected [string] got [not set]
+[ros2_control_node-2] Stack trace (most recent call last) in thread 429981:
+[spawner-9] [INFO] [1783948891.259186810] [spawner_joint_trajectory_controller]: [94mLoaded [1mjoint_trajectory_controller[0m
+[ros2_control_node-2] #25   Object "", at 0xffffffffffffffff, in 
+[ros2_control_node-2] #24   Source "../sysdeps/unix/sysv/linux/x86_64/clone3.S", line 81, in __clone3 [0x7f988a57d8cf]
+[ros2_control_node-2] #23   Source "./nptl/pthread_create.c", line 442, in start_thread [0x7f988a4ebac2]
+[ros2_control_node-2] #22   Source "../../../../../libstdc++-v3/src/c++11/thread.cc", line 104, in execute_native_thread_routine [0x7f988a779197]
+[ros2_control_node-2] #21   Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/librclcpp.so", at 0x7f988a97dbca, in rclcpp::executors::MultiThreadedExecutor::run(unsigned long)
+[ros2_control_node-2] #20   Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/librclcpp.so", at 0x7f988a9778aa, in rclcpp::Executor::execute_any_executable(rclcpp::AnyExecutable&)
+[ros2_control_node-2] #19   Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/librclcpp.so", at 0x7f988a975b33, in rclcpp::Executor::execute_service(std::shared_ptr<rclcpp::ServiceBase>)
+[ros2_control_node-2] #18   Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/librclcpp.so", at 0x7f988a9746b3, in std::_Function_handler<void (), rclcpp::Executor::execute_service(std::shared_ptr<rclcpp::ServiceBase>)::{lambda()#2}>::_M_invoke(std::_Any_data const&)
+[ros2_control_node-2] #17   Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/libcontroller_manager.so", at 0x7f988abeaa8e, in rclcpp::Service<controller_manager_msgs::srv::LoadController>::handle_request(std::shared_ptr<rmw_request_id_s>, std::shared_ptr<void>)
+[ros2_control_node-2] #16   Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/libcontroller_manager.so", at 0x7f988abea3e7, in rclcpp::AnyServiceCallback<controller_manager_msgs::srv::LoadController>::dispatch(std::shared_ptr<rclcpp::Service<controller_manager_msgs::srv::LoadController> > const&, std::shared_ptr<rmw_request_id_s> const&, std::shared_ptr<controller_manager_msgs::srv::LoadController_Request_<std::allocator<void> > >)
+[ros2_control_node-2] #15   Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/libcontroller_manager.so", at 0x7f988ab7a6f1, in std::_Function_handler<void (std::shared_ptr<controller_manager_msgs::srv::LoadController_Request_<std::allocator<void> > >, std::shared_ptr<controller_manager_msgs::srv::LoadController_Response_<std::allocator<void> > >), std::_Bind<void (controller_manager::ControllerManager::*(controller_manager::ControllerManager*, std::_Placeholder<1>, std::_Placeholder<2>))(std::shared_ptr<controller_manager_msgs::srv::LoadController_Request_<std::allocator<void> > >, std::shared_ptr<controller_manager_msgs::srv::LoadController_Response_<std::allocator<void> > >)> >::_M_invoke(std::_Any_data const&, std::shared_ptr<controller_manager_msgs::srv::LoadController_Request_<std::allocator<void> > >&&, std::shared_ptr<controller_manager_msgs::srv::LoadController_Response_<std::allocator<void> > >&&)
+[ros2_control_node-2] #14   Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/libcontroller_manager.so", at 0x7f988abb44f7, in controller_manager::ControllerManager::load_controller_service_cb(std::shared_ptr<controller_manager_msgs::srv::LoadController_Request_<std::allocator<void> > >, std::shared_ptr<controller_manager_msgs::srv::LoadController_Response_<std::allocator<void> > >)
+[ros2_control_node-2] #13   Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/libcontroller_manager.so", at 0x7f988abb4272, in controller_manager::ControllerManager::load_controller(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+[ros2_control_node-2] #12   Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/libcontroller_manager.so", at 0x7f988abb3609, in controller_manager::ControllerManager::load_controller(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+[ros2_control_node-2] #11   Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/libcontroller_manager.so", at 0x7f988aba279d, in controller_manager::ControllerManager::add_controller_impl(controller_manager::ControllerSpec const&)
+[ros2_control_node-2] #10   Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/libcontroller_interface.so", at 0x7f988a3a56f4, in controller_interface::ControllerInterfaceBase::init(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, rclcpp::NodeOptions const&)
+[ros2_control_node-2] #9    Object "/home/ergodic_group/Matej/pixi_franka_ros2/install/crisp_controllers/lib/libcrisp_controllers.so", at 0x7f9864492b7b, in crisp_controllers::CartesianController::on_init()
+[ros2_control_node-2] #8    Object "/home/ergodic_group/Matej/pixi_franka_ros2/install/crisp_controllers/lib/libcrisp_controllers.so", at 0x7f9864484306, in cartesian_controller::ParamListener::declare_params()
+[ros2_control_node-2] #7    Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/librclcpp.so", at 0x7f988a94dda7, in rclcpp::Parameter::as_string[abi:cxx11]() const [clone .cold]
+[ros2_control_node-2] #6    Source "../../../../libstdc++-v3/libsupc++/eh_throw.cc", line 98, in __cxa_throw [0x7f988a75c8bd]
+[ros2_control_node-2] #5    Source "../../../../libstdc++-v3/libsupc++/eh_terminate.cc", line 58, in terminate [0x7f988a7560e2]
+[ros2_control_node-2] #4    Source "../../../../libstdc++-v3/libsupc++/eh_terminate.cc", line 48, in __terminate [0x7f988a75c6ba]
+[ros2_control_node-2] #3    Source "../../../../libstdc++-v3/libsupc++/vterminate.cc", line 95, in __verbose_terminate_handler [0x7f988a75e0d8]
+[ros2_control_node-2] #2    Source "./stdlib/abort.c", line 79, in abort [0x7f988a47f7f2]
+[ros2_control_node-2] #1    Source "../sysdeps/posix/raise.c", line 26, in raise [0x7f988a499475]
+[ros2_control_node-2] #0  | Source "./nptl/pthread_kill.c", line 89, in __pthread_kill_internal
+[ros2_control_node-2]     | Source "./nptl/pthread_kill.c", line 78, in __pthread_kill_implementation
+[ros2_control_node-2]       Source "./nptl/pthread_kill.c", line 44, in __pthread_kill [0x7f988a4ed9fc]
+[ros2_control_node-2] Aborted (Signal sent by tkill() 429929 1008)
+[ERROR] [ros2_control_node-2]: process has died [pid 429929, exit code -6, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/ros2_control_node --ros-args -r __ns:=/ --params-file /home/ergodic_group/Matej/pixi_franka_ros2/install/franka_bringup/share/franka_bringup/config/spin.controllers.yaml --params-file /tmp/launch_params_9sslh68h --params-file /tmp/launch_params_bou_g3b6 --params-file /tmp/launch_params_mnntbs6i --params-file /tmp/launch_params_jaxqaisd -r joint_states:=franka/joint_states'].
+[INFO] [launch]: process[ros2_control_node-2] was required: shutting down launched system
+[INFO] [rviz2-10]: sending signal 'SIGINT' to process[rviz2-10]
+[INFO] [spawner-9]: sending signal 'SIGINT' to process[spawner-9]
+[INFO] [spawner-8]: sending signal 'SIGINT' to process[spawner-8]
+[INFO] [spawner-7]: sending signal 'SIGINT' to process[spawner-7]
+[INFO] [spawner-6]: sending signal 'SIGINT' to process[spawner-6]
+[INFO] [spawner-5]: sending signal 'SIGINT' to process[spawner-5]
+[INFO] [spawner-4]: sending signal 'SIGINT' to process[spawner-4]
+[INFO] [joint_state_publisher-3]: sending signal 'SIGINT' to process[joint_state_publisher-3]
+[INFO] [robot_state_publisher-1]: sending signal 'SIGINT' to process[robot_state_publisher-1]
+[rviz2-10] [INFO] [1783948891.412177293] [rclcpp]: signal_handler(signum=2)
+[robot_state_publisher-1] [INFO] [1783948891.416677563] [rclcpp]: signal_handler(signum=2)
+[rviz2-10] [INFO] [1783948891.788295961] [rviz2]: Stereo is NOT SUPPORTED
+[rviz2-10] [INFO] [1783948891.788324661] [rviz2]: OpenGl version: 4.6 (GLSL 4.6)
+[rviz2-10] [INFO] [1783948891.937688825] [rviz2]: Stereo is NOT SUPPORTED
+[rviz2-10] terminate called after throwing an instance of 'rclcpp::exceptions::RCLError'
+[rviz2-10]   what():  failed to create guard condition: the given context is not valid, either rcl_init() was not called or rcl_shutdown() was called., at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1736209862/work/ros-humble-rcl/src/work/src/rcl/guard_condition.c:67
+[ERROR] [rviz2-10]: process has died [pid 429945, exit code -6, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/rviz2/rviz2 --display-config /home/ergodic_group/Matej/pixi_franka_ros2/install/franka_description/share/franka_description/rviz/spin.visualize_franka.rviz -f fr3_link0 --ros-args -r __node:=rviz2'].
+[INFO] [robot_state_publisher-1]: process has finished cleanly [pid 429927]
+[INFO] [joint_state_publisher-3]: process has finished cleanly [pid 429931]
+[ERROR] [spawner-9]: process[spawner-9] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
+[ERROR] [spawner-8]: process[spawner-8] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
+[ERROR] [spawner-7]: process[spawner-7] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
+[ERROR] [spawner-6]: process[spawner-6] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
+[ERROR] [spawner-5]: process[spawner-5] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
+[ERROR] [spawner-4]: process[spawner-4] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
+[INFO] [spawner-9]: sending signal 'SIGTERM' to process[spawner-9]
+[INFO] [spawner-8]: sending signal 'SIGTERM' to process[spawner-8]
+[INFO] [spawner-7]: sending signal 'SIGTERM' to process[spawner-7]
+[INFO] [spawner-6]: sending signal 'SIGTERM' to process[spawner-6]
+[INFO] [spawner-5]: sending signal 'SIGTERM' to process[spawner-5]
+[INFO] [spawner-4]: sending signal 'SIGTERM' to process[spawner-4]
+[ERROR] [spawner-9]: process has died [pid 429943, exit code -15, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner joint_trajectory_controller --inactive --ros-args -r __ns:=/'].
+[ERROR] [spawner-8]: process has died [pid 429941, exit code -15, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner joint_impedance_controller --controller-manager-timeout 30 --ros-args -r __ns:=/'].
+[ERROR] [spawner-7]: process has died [pid 429939, exit code -15, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner gravity_compensation --inactive --ros-args -r __ns:=/'].
+[ERROR] [spawner-6]: process has died [pid 429937, exit code -15, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner cartesian_impedance_controller --inactive --ros-args -r __ns:=/'].
+[ERROR] [spawner-5]: process has died [pid 429935, exit code -15, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner pose_broadcaster --ros-args -r __ns:=/'].
+[ERROR] [spawner-4]: process has died [pid 429933, exit code -15, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner joint_state_broadcaster --ros-args -r __ns:=/'].

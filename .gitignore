@@ -1,0 +1,8 @@
+# pixi environments
+.pixi
+.
+build
+log
+install
+build
+scripts/launch/__pycache__

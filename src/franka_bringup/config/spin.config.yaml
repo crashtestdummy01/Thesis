@@ -1,0 +1,15 @@
+# Configuration file for example.launch.py
+# Defines parameters for launching 0 to many (here only 1 is enabled)
+# Franka Robotics components in simulated environments.
+
+ROBOT1:
+  robot_type: "fr3"
+  arm_id: "fr3"
+  arm_prefix: ""
+  fake_sensor_commands: "true"
+  joint_state_rate: 30
+  load_gripper: "false"
+  namespace: ""
+  robot_ip: "10.90.90.143"
+  use_fake_hardware: "false"
+  use_rviz: "true"
