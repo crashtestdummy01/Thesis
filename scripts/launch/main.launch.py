@@ -129,7 +129,8 @@ def generate_robot_nodes(context):
                     package="controller_manager",
                     executable="spawner",
                     namespace=namespace,
-                    arguments=["cartesian_impedance_controller", "--inactive"],
+                    arguments=["cartesian_impedance_controller", #"--inactive"
+                    ],
                     output="screen",
                 ),
                 Node(
@@ -145,7 +146,7 @@ def generate_robot_nodes(context):
                     namespace=namespace,
                     arguments=[
                         "joint_impedance_controller", 
-                        # "--inactive",
+                        "--inactive",
                         '--controller-manager-timeout',
                         '30',
                         ],

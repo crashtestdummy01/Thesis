@@ -8,7 +8,7 @@ ROBOT1:
   arm_prefix: ""
   fake_sensor_commands: "true"
   joint_state_rate: 30
-  load_gripper: "false"
+  load_gripper: "true"
   namespace: ""
   robot_ip: "10.90.90.143"
   use_fake_hardware: "false"
