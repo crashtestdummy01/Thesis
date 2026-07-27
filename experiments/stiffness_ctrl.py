@@ -11,7 +11,7 @@ class StiffnessCtrlNode(Node):
 
         # Adjust topic name to match your CRISP controller instance namespace
         # Commonly: '/cartesian_impedance_controller/stiffness'
-        self.topic_name = None
+        self.topic_name = "/target_stiffness"
 
         self.publisher = self.create_publisher(
             Float64MultiArray, self.topic_name, 10
@@ -33,9 +33,9 @@ class StiffnessCtrlNode(Node):
         ]
 
         # Uncomment this to work
-        # self.publisher.publish(msg)
+        self.publisher.publish(msg)
         self.get_logger().info(
-            f'Published Stiffness -> Trans: {k_trans} N/m, Rot: {k_rot} Nm/rad'
+            f'Published Stiffness -> {msg.data}'
         )
 
 

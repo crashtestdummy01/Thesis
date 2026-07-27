@@ -111,23 +111,27 @@ cartesian_impedance_controller:
         output_torque: 0.5
 
       task:
-        k_pos_x: 400.0
-        k_pos_y: 400.0
-        k_pos_z: 400.0
+        k_pos_x: 300.0
+        k_pos_y: 300.0
+        k_pos_z: 300.0
         k_rot_x: 30.0
         k_rot_y: 30.0
         k_rot_z: 30.0
 
       nullspace: 
-        stiffness: 2.0
+        stiffness: 5.0
 
       # log:
       #   enabled: true
       #   timing: true
 
-      use_friction: false
+      limit_error: true
+      limit_torques: true
+      use_friction: true
       use_coriolis_compensation: true
       use_local_jacobian: true
+      variable_stiffness:
+        enabled: true
     
 
 
