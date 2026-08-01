@@ -293,8 +293,18 @@ private:
    */
   bool check_topic_publisher_count(const std::string & topic_name);
   
+  // Modification start
   rclcpp::Publisher<geometry_msgs::msg::WrenchStamped>::SharedPtr force_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<geometry_msgs::msg::WrenchStamped>> realtime_force_pub_;
+  Eigen::VectorXd tau_ext_;
+  Eigen::MatrixXd JT_pinv_;
+  Eigen::Vector6d F_ext_world_;
+  
+  Eigen::Vector3d F_local_force_;
+  Eigen::Vector3d F_local_torque_;
+  
+  size_t tau_ext_offset_{-1};
+  // Modification end
 };
 
 }  // namespace crisp_controllers

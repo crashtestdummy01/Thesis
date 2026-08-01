@@ -124,6 +124,33 @@ CartesianController::update(const rclcpp::Time & time, const rclcpp::Duration & 
     ? pinocchio::ReferenceFrame::LOCAL
     : pinocchio::ReferenceFrame::LOCAL_WORLD_ALIGNED;
   pinocchio::computeFrameJacobian(model_, data_, q_pin, end_effector_frame_id, reference_frame, J);
+  
+  // Modification start
+  
+  JT_pinv_ = pseudo_inverse(J.transpose(), params_.nullspace.regularization);
+  F_ext_world_ = JT_pinv_ * tau_ext_;
+  
+  const Eigen::Matrix3d & R_ee = end_effector_pose.rotation();
+  F_local_force_ = R_ee.transpose() * F_ext_world_.head<3>();
+  F_local_torque_ = R_ee.transpose() * F_ext_world_.tail<3>();
+  
+  if (realtime_force_pub_ && realtime_force_pub_->trylock()){
+    auto & msg = realtime_force_pub_->msg_;
+    
+    msg.header.stamp = time;
+    
+    msg.wrench.force.x = F_local_force.x();
+    msg.wrench.force.y = F_local_force.y();
+    msg.wrench.force.z = F_local_force.z();
+    
+    msg.wrench.torque.x = F_local_torque.x();
+    msg.wrench.torque.y = F_local_torque.y();
+    msg.wrench.torque.z = F_local_torque.z();
+    
+    realtime_force_pub_->unlockAndPublish();
+  }
+  
+  // Modification end
 
   J_pinv = pseudo_inverse(J, params_.nullspace.regularization);
   if (params_.nullspace.projector_type == "dynamic" || params_.use_operational_space) {
@@ -459,9 +486,17 @@ CartesianController::on_configure(const rclcpp_lifecycle::State & /*previous_sta
 
   RCLCPP_INFO(get_node()->get_logger(), "State interfaces and control vectors initialized.");
   
+  // Modification start
   force_pub_ = get_node()->create_publisher<geometry_msgs::msg::WrenchStamped>("~/measured_force", rclcpp::SystemDefaultsQoS());
   realtime_force_pub_ = std::make_unique<realtime_tools::RealtimePublisher<geometry_msgs::msg::WrenchStamped>>(force_pub_);
-
+  
+  realtime_force_pub_->msg.header.frame_id = params_.end_effector_link;
+  
+  tau_ext_.setZero(model_.nv);
+  JT_pinv_.set_Zero(model_.nv, 6);
+  
+  
+  // Modification end
   return CallbackReturn::SUCCESS;
 }
 
@@ -532,6 +567,7 @@ void CartesianController::updateCurrentState(bool initialize) {
 #else
     double q_meas = state_interfaces_[i].get_value();
     double dq_meas = state_interfaces_[num_joints + i].get_value();
+    tau_ext[i] = state_interfaces_[i + tau_ext_offset_].get_value();
 #endif
     
     q_ref[i] = initialize 
@@ -576,6 +612,20 @@ CartesianController::on_activate(const rclcpp_lifecycle::State & /*previous_stat
   desired_orientation_ = target_orientation_;
 
   RCLCPP_INFO(get_node()->get_logger(), "Controller activated.");
+  
+  tau_ext_offset_ = -1;
+  for (size_t i = 0; i < state_interfaces_.size(); i++){
+    if (state_interfaces_[i].get_interface_name() == "tau_ext_hat_filtered" ||
+        state_interfaces_[i].get_interface_name() == "external_torque"){
+      tau_ext_offset_ = i;
+      break
+    }
+  }
+  
+  if (tau_ext_offset == -1){
+    RCLCPP_ERROR(get_node()->get_logger(), "Failed to find external torque state interface!");
+    return CallbackReturn::ERROR;
+  }
   return CallbackReturn::SUCCESS;
 }
 
