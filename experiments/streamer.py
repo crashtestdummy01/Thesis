@@ -15,7 +15,7 @@ class CartesianTrajectoryStreamer(Node):
         trajectory_path = 'long_trajectory.npy' 
         self.trajectory = np.load(trajectory_path)
         
-        self.trajectory[:, 2] = 0.1
+        self.trajectory[:, 2] = 0.3
         self.trajectory[:, 0] += 0.2
         self.trajectory[:, 1] -= 0.2
         self.trajectory *= 1.3 

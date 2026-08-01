@@ -29,6 +29,7 @@
 
 #include <sensor_msgs/msg/joint_state.hpp>
 #include "realtime_tools/realtime_buffer.hpp"
+#include "realtime_tools/realtime_publisher.hpp"
 
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
@@ -291,6 +292,9 @@ private:
    * @return true if publisher count is safe (<=1), false otherwise
    */
   bool check_topic_publisher_count(const std::string & topic_name);
+  
+  rclcpp::Publisher<geometry_msgs::msg::WrenchStamped>::SharedPtr force_pub_;
+  std::unique_ptr<realtime_tools::RealtimePublisher<geometry_msgs::msg::WrenchStamped>> realtime_force_pub_;
 };
 
 }  // namespace crisp_controllers

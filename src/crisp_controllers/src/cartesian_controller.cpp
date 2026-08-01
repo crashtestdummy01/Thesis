@@ -458,6 +458,9 @@ CartesianController::on_configure(const rclcpp_lifecycle::State & /*previous_sta
 #endif
 
   RCLCPP_INFO(get_node()->get_logger(), "State interfaces and control vectors initialized.");
+  
+  force_pub_ = get_node()->create_publisher<geometry_msgs::msg::WrenchStamped>("~/measured_force", rclcpp::SystemDefaultsQoS());
+  realtime_force_pub_ = std::make_unique<realtime_tools::RealtimePublisher<geometry_msgs::msg::WrenchStamped>>(force_pub_);
 
   return CallbackReturn::SUCCESS;
 }
