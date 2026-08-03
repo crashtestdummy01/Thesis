@@ -304,6 +304,7 @@ private:
   Eigen::Vector3d F_local_torque_;
   
   int tau_ext_offset_{-1};
+  double alpha_{0.5};
   
   Eigen::VectorXd zero_ddq_;
   Eigen::VectorXd tau_dyn_;

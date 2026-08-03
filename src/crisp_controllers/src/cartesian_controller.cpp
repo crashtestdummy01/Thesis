@@ -134,10 +134,15 @@ CartesianController::update(const rclcpp::Time & time, const rclcpp::Duration & 
   JT_pinv_ = pseudo_inverse(J.transpose(), params_.nullspace.regularization);
   F_ext_world_ = JT_pinv_ * tau_ext_;
   
-  const Eigen::Matrix3d & R_ee = end_effector_pose.rotation();
-  F_local_force_ = R_ee.transpose() * F_ext_world_.head(3);
-  F_local_torque_ = R_ee.transpose() * F_ext_world_.tail(3);
-  
+  if (params_.use_local_jacobian){
+    F_local_force_ = F_ext_world_.head(3);
+    F_local_torque_ = F_ext_world_.tail(3);
+  }
+  else{
+    const Eigen::Matrix3d & R_ee = end_effector_pose.rotation();
+    F_local_force_ = R_ee.transpose() * F_ext_world_.head(3);
+    F_local_torque_ = R_ee.transpose() * F_ext_world_.tail(3);
+  }
   if (realtime_force_pub_ && realtime_force_pub_->trylock()){
     auto & msg = realtime_force_pub_->msg_;
     
@@ -576,9 +581,7 @@ void CartesianController::updateCurrentState(bool initialize) {
 #else
     double q_meas = state_interfaces_[i].get_value();
     double dq_meas = state_interfaces_[num_joints + i].get_value();
-    if (tau_ext_offset_ >= 0){
-         effort_meas_[i] = state_interfaces_[i + tau_ext_offset_].get_value();
-    }
+    double tau_meas = state_interfaces_[2 * num_joints + i].get_value();
 #endif
     
     q_ref[i] = initialize 
@@ -603,16 +606,17 @@ void CartesianController::updateCurrentState(bool initialize) {
 
     q_target[i] = initialize ? q_meas : q_target[i];
     
+    effort_meas_[i] = tau_meas;
   }
   // Modification start
   tau_dyn_ = pinocchio::rnea(model_, data_, q_pin, dq, zero_ddq_);
   tau_ext_raw_ = effort_meas_ - tau_dyn_;
   tau_ext_ = initialize
-      ? effort_meas_
-      : alpha * tau_ext_raw_ + (1.0 - alpha) * tau_ext_;
+      ? tau_ext_raw_
+      : alpha_ * tau_ext_raw_ + (1.0 - alpha_) * tau_ext_;
       
   for(int i = 0; i < model_.nv; ++i){
-    if (std::abs(tau_ext_[i] < 0.5)){
+    if (std::abs(tau_ext_[i]) < 0.5){
       tau_ext_[i] = 0.0;
     }
   }
