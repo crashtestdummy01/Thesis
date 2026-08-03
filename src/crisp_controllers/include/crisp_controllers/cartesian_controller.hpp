@@ -298,12 +298,17 @@ private:
   std::unique_ptr<realtime_tools::RealtimePublisher<geometry_msgs::msg::WrenchStamped>> realtime_force_pub_;
   Eigen::VectorXd tau_ext_;
   Eigen::MatrixXd JT_pinv_;
-  Eigen::Vector6d F_ext_world_;
+  Eigen::VectorXd F_ext_world_;
   
   Eigen::Vector3d F_local_force_;
   Eigen::Vector3d F_local_torque_;
   
-  size_t tau_ext_offset_{-1};
+  int tau_ext_offset_{-1};
+  
+  Eigen::VectorXd zero_ddq_;
+  Eigen::VectorXd tau_dyn_;
+  Eigen::VectorXd tau_ext_raw_;
+  Eigen::VectorXd effort_meas_;
   // Modification end
 };
 
