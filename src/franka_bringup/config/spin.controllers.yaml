@@ -369,9 +369,9 @@
         output_torque: 0.5
 
       task:
-        k_pos_x: 400.0
-        k_pos_y: 400.0
-        k_pos_z: 400.0
+        k_pos_x: 800.0
+        k_pos_y: 800.0
+        k_pos_z: 800.0
         k_rot_x: 30.0
         k_rot_y: 30.0
         k_rot_z: 30.0
@@ -383,9 +383,9 @@
       #   enabled: true
       #   timing: true
 
-      use_friction: false
+      use_friction: true
       use_coriolis_compensation: true
-      use_local_jacobian: true
+      use_local_jacobian: false
 
   torque_feedback_controller:
     ros__parameters:

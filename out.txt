@@ -1,248 +1,276 @@
-[INFO] [launch]: All log files can be found below /home/ergodic_group/.ros/log/2026-07-23-15-02-23-823610-cray-274376
+[INFO] [launch]: All log files can be found below /home/ergodic_group/.ros/log/2026-08-10-17-30-57-311441-cray-22228
 [INFO] [launch]: Default logging verbosity is set to INFO
-[INFO] [robot_state_publisher-1]: process started with pid [274377]
-[INFO] [ros2_control_node-2]: process started with pid [274379]
-[INFO] [joint_state_publisher-3]: process started with pid [274381]
-[INFO] [spawner-4]: process started with pid [274383]
-[INFO] [spawner-5]: process started with pid [274385]
-[INFO] [spawner-6]: process started with pid [274387]
-[INFO] [spawner-7]: process started with pid [274389]
-[INFO] [spawner-8]: process started with pid [274391]
-[INFO] [spawner-9]: process started with pid [274393]
-[INFO] [spawner-10]: process started with pid [274395]
-[INFO] [rviz2-11]: process started with pid [274397]
-[robot_state_publisher-1] [INFO] [1784811744.055089910] [robot_state_publisher]: got segment base
-[robot_state_publisher-1] [INFO] [1784811744.055137160] [robot_state_publisher]: got segment fr3_link0
-[robot_state_publisher-1] [INFO] [1784811744.055143770] [robot_state_publisher]: got segment fr3_link0_accelerometer_bottom
-[robot_state_publisher-1] [INFO] [1784811744.055148810] [robot_state_publisher]: got segment fr3_link0_accelerometer_top
-[robot_state_publisher-1] [INFO] [1784811744.055153590] [robot_state_publisher]: got segment fr3_link1
-[robot_state_publisher-1] [INFO] [1784811744.055158240] [robot_state_publisher]: got segment fr3_link1_accelerometer_bottom
-[robot_state_publisher-1] [INFO] [1784811744.055162850] [robot_state_publisher]: got segment fr3_link1_accelerometer_top
-[robot_state_publisher-1] [INFO] [1784811744.055167580] [robot_state_publisher]: got segment fr3_link2
-[robot_state_publisher-1] [INFO] [1784811744.055172310] [robot_state_publisher]: got segment fr3_link2_accelerometer_bottom
-[robot_state_publisher-1] [INFO] [1784811744.055177260] [robot_state_publisher]: got segment fr3_link2_accelerometer_top
-[robot_state_publisher-1] [INFO] [1784811744.055182150] [robot_state_publisher]: got segment fr3_link3
-[robot_state_publisher-1] [INFO] [1784811744.055186810] [robot_state_publisher]: got segment fr3_link3_accelerometer_bottom
-[robot_state_publisher-1] [INFO] [1784811744.055191500] [robot_state_publisher]: got segment fr3_link3_accelerometer_top
-[robot_state_publisher-1] [INFO] [1784811744.055196120] [robot_state_publisher]: got segment fr3_link4
-[robot_state_publisher-1] [INFO] [1784811744.055200770] [robot_state_publisher]: got segment fr3_link4_accelerometer_bottom
-[robot_state_publisher-1] [INFO] [1784811744.055205350] [robot_state_publisher]: got segment fr3_link4_accelerometer_top
-[robot_state_publisher-1] [INFO] [1784811744.055209960] [robot_state_publisher]: got segment fr3_link5
-[robot_state_publisher-1] [INFO] [1784811744.055214520] [robot_state_publisher]: got segment fr3_link5_accelerometer_bottom
-[robot_state_publisher-1] [INFO] [1784811744.055221470] [robot_state_publisher]: got segment fr3_link5_accelerometer_top
-[robot_state_publisher-1] [INFO] [1784811744.055226140] [robot_state_publisher]: got segment fr3_link6
-[robot_state_publisher-1] [INFO] [1784811744.055230720] [robot_state_publisher]: got segment fr3_link7
-[robot_state_publisher-1] [INFO] [1784811744.055235290] [robot_state_publisher]: got segment fr3_link8
-[ros2_control_node-2] [WARN] [1784811744.063676396] [controller_manager]: [Deprecated] Passing the robot description parameter directly to the control_manager node is deprecated. Use '~/robot_description' topic from 'robot_state_publisher' instead.
+[INFO] [robot_state_publisher-1]: process started with pid [22230]
+[INFO] [ros2_control_node-2]: process started with pid [22232]
+[INFO] [joint_state_publisher-3]: process started with pid [22234]
+[INFO] [spawner-4]: process started with pid [22236]
+[INFO] [spawner-5]: process started with pid [22238]
+[INFO] [franka_gripper_node-6]: process started with pid [22240]
+[INFO] [spawner-7]: process started with pid [22242]
+[INFO] [spawner-8]: process started with pid [22244]
+[INFO] [spawner-9]: process started with pid [22246]
+[INFO] [spawner-10]: process started with pid [22248]
+[INFO] [spawner-11]: process started with pid [22250]
+[INFO] [rviz2-12]: process started with pid [22252]
+[robot_state_publisher-1] 1786375857.571622 [42] robot_stat: selected interface "lo" is not multicast-capable: disabling multicast
+[robot_state_publisher-1] [INFO] [1786375857.578020262] [robot_state_publisher]: got segment base
+[robot_state_publisher-1] [INFO] [1786375857.578133842] [robot_state_publisher]: got segment fr3_hand
+[robot_state_publisher-1] [INFO] [1786375857.578140192] [robot_state_publisher]: got segment fr3_hand_tcp
+[robot_state_publisher-1] [INFO] [1786375857.578144912] [robot_state_publisher]: got segment fr3_leftfinger
+[robot_state_publisher-1] [INFO] [1786375857.578149432] [robot_state_publisher]: got segment fr3_link0
+[robot_state_publisher-1] [INFO] [1786375857.578153732] [robot_state_publisher]: got segment fr3_link0_accelerometer_bottom
+[robot_state_publisher-1] [INFO] [1786375857.578158342] [robot_state_publisher]: got segment fr3_link0_accelerometer_top
+[robot_state_publisher-1] [INFO] [1786375857.578162832] [robot_state_publisher]: got segment fr3_link1
+[robot_state_publisher-1] [INFO] [1786375857.578167152] [robot_state_publisher]: got segment fr3_link1_accelerometer_bottom
+[robot_state_publisher-1] [INFO] [1786375857.578171622] [robot_state_publisher]: got segment fr3_link1_accelerometer_top
+[robot_state_publisher-1] [INFO] [1786375857.578176041] [robot_state_publisher]: got segment fr3_link2
+[robot_state_publisher-1] [INFO] [1786375857.578180361] [robot_state_publisher]: got segment fr3_link2_accelerometer_bottom
+[robot_state_publisher-1] [INFO] [1786375857.578184681] [robot_state_publisher]: got segment fr3_link2_accelerometer_top
+[robot_state_publisher-1] [INFO] [1786375857.578188941] [robot_state_publisher]: got segment fr3_link3
+[robot_state_publisher-1] [INFO] [1786375857.578193491] [robot_state_publisher]: got segment fr3_link3_accelerometer_bottom
+[robot_state_publisher-1] [INFO] [1786375857.578197851] [robot_state_publisher]: got segment fr3_link3_accelerometer_top
+[robot_state_publisher-1] [INFO] [1786375857.578202211] [robot_state_publisher]: got segment fr3_link4
+[robot_state_publisher-1] [INFO] [1786375857.578206751] [robot_state_publisher]: got segment fr3_link4_accelerometer_bottom
+[robot_state_publisher-1] [INFO] [1786375857.578211081] [robot_state_publisher]: got segment fr3_link4_accelerometer_top
+[robot_state_publisher-1] [INFO] [1786375857.578215461] [robot_state_publisher]: got segment fr3_link5
+[robot_state_publisher-1] [INFO] [1786375857.578219701] [robot_state_publisher]: got segment fr3_link5_accelerometer_bottom
+[robot_state_publisher-1] [INFO] [1786375857.578224081] [robot_state_publisher]: got segment fr3_link5_accelerometer_top
+[robot_state_publisher-1] [INFO] [1786375857.578228651] [robot_state_publisher]: got segment fr3_link6
+[robot_state_publisher-1] [INFO] [1786375857.578233001] [robot_state_publisher]: got segment fr3_link7
+[robot_state_publisher-1] [INFO] [1786375857.578237261] [robot_state_publisher]: got segment fr3_link8
+[robot_state_publisher-1] [INFO] [1786375857.578241481] [robot_state_publisher]: got segment fr3_rightfinger
+[ros2_control_node-2] 1786375857.573432 [42] ros2_contr: selected interface "lo" is not multicast-capable: disabling multicast
+[ros2_control_node-2] [WARN] [1786375857.588328430] [controller_manager]: [Deprecated] Passing the robot description parameter directly to the control_manager node is deprecated. Use '~/robot_description' topic from 'robot_state_publisher' instead.
 [ros2_control_node-2] text not specified in the prefix tag
 [ros2_control_node-2] text not specified in the arm_prefix tag
-[ros2_control_node-2] [INFO] [1784811744.064019756] [resource_manager]: Loading hardware 'FrankaHardwareInterface' 
-[ros2_control_node-2] [INFO] [1784811744.087331318] [resource_manager]: Initialize hardware 'FrankaHardwareInterface' 
-[ros2_control_node-2] [INFO] [1784811744.087384248] [FrankaHardwareInterface]: Parsed Franka ros2_control interface version: 1.0.0
-[ros2_control_node-2] [INFO] [1784811744.087391578] [FrankaHardwareInterface]: Connecting to robot at "10.90.90.143" ...
-[ros2_control_node-2] [INFO] [1784811744.087942288] [FrankaHardwareInterface]: libfranka: Setting thread priority to the highest possible value.
-[ros2_control_node-2] [INFO] [1784811744.097242134] [FrankaHardwareInterface]: Successfully connected to robot
-[ros2_control_node-2] [INFO] [1784811744.101339462] [service_server]: Service started
-[ros2_control_node-2] [INFO] [1784811744.205121436] [action_server]: Action server started
-[ros2_control_node-2] [INFO] [1784811744.205167766] [resource_manager]: Successful initialization of hardware 'FrankaHardwareInterface'
-[ros2_control_node-2] [INFO] [1784811744.205266766] [FrankaHardwareInterface]: Register joint-based command interfaces
-[ros2_control_node-2] [INFO] [1784811744.205276236] [FrankaHardwareInterface]: Registering command interface: fr3_joint1 for command interface position with index 0
-[ros2_control_node-2] [INFO] [1784811744.205281356] [FrankaHardwareInterface]: Registering command interface: fr3_joint1 for command interface velocity with index 0
-[ros2_control_node-2] [INFO] [1784811744.205285646] [FrankaHardwareInterface]: Registering command interface: fr3_joint1 for command interface effort with index 0
-[ros2_control_node-2] [INFO] [1784811744.205290106] [FrankaHardwareInterface]: Registering command interface: fr3_joint2 for command interface position with index 1
-[ros2_control_node-2] [INFO] [1784811744.205294506] [FrankaHardwareInterface]: Registering command interface: fr3_joint2 for command interface velocity with index 1
-[ros2_control_node-2] [INFO] [1784811744.205298666] [FrankaHardwareInterface]: Registering command interface: fr3_joint2 for command interface effort with index 1
-[ros2_control_node-2] [INFO] [1784811744.205302976] [FrankaHardwareInterface]: Registering command interface: fr3_joint3 for command interface position with index 2
-[ros2_control_node-2] [INFO] [1784811744.205308646] [FrankaHardwareInterface]: Registering command interface: fr3_joint3 for command interface velocity with index 2
-[ros2_control_node-2] [INFO] [1784811744.205312976] [FrankaHardwareInterface]: Registering command interface: fr3_joint3 for command interface effort with index 2
-[ros2_control_node-2] [INFO] [1784811744.205317156] [FrankaHardwareInterface]: Registering command interface: fr3_joint4 for command interface position with index 3
-[ros2_control_node-2] [INFO] [1784811744.205320986] [FrankaHardwareInterface]: Registering command interface: fr3_joint4 for command interface velocity with index 3
-[ros2_control_node-2] [INFO] [1784811744.205324726] [FrankaHardwareInterface]: Registering command interface: fr3_joint4 for command interface effort with index 3
-[ros2_control_node-2] [INFO] [1784811744.205328916] [FrankaHardwareInterface]: Registering command interface: fr3_joint5 for command interface position with index 4
-[ros2_control_node-2] [INFO] [1784811744.205332956] [FrankaHardwareInterface]: Registering command interface: fr3_joint5 for command interface velocity with index 4
-[ros2_control_node-2] [INFO] [1784811744.205337336] [FrankaHardwareInterface]: Registering command interface: fr3_joint5 for command interface effort with index 4
-[ros2_control_node-2] [INFO] [1784811744.205341516] [FrankaHardwareInterface]: Registering command interface: fr3_joint6 for command interface position with index 5
-[ros2_control_node-2] [INFO] [1784811744.205345846] [FrankaHardwareInterface]: Registering command interface: fr3_joint6 for command interface velocity with index 5
-[ros2_control_node-2] [INFO] [1784811744.205349916] [FrankaHardwareInterface]: Registering command interface: fr3_joint6 for command interface effort with index 5
-[ros2_control_node-2] [INFO] [1784811744.205354116] [FrankaHardwareInterface]: Registering command interface: fr3_joint7 for command interface position with index 6
-[ros2_control_node-2] [INFO] [1784811744.205358366] [FrankaHardwareInterface]: Registering command interface: fr3_joint7 for command interface velocity with index 6
-[ros2_control_node-2] [INFO] [1784811744.205363116] [FrankaHardwareInterface]: Registering command interface: fr3_joint7 for command interface effort with index 6
-[ros2_control_node-2] [INFO] [1784811744.205413096] [FrankaHardwareInterface]: Register general purpose command interfaces
-[ros2_control_node-2] [INFO] [1784811744.205419486] [FrankaHardwareInterface]: Registering command interface: vx for command interface cartesian_velocity with index 0
-[ros2_control_node-2] [INFO] [1784811744.205424386] [FrankaHardwareInterface]: Registering command interface: vy for command interface cartesian_velocity with index 1
-[ros2_control_node-2] [INFO] [1784811744.205428976] [FrankaHardwareInterface]: Registering command interface: vz for command interface cartesian_velocity with index 2
-[ros2_control_node-2] [INFO] [1784811744.205433326] [FrankaHardwareInterface]: Registering command interface: wx for command interface cartesian_velocity with index 3
-[ros2_control_node-2] [INFO] [1784811744.205437626] [FrankaHardwareInterface]: Registering command interface: wy for command interface cartesian_velocity with index 4
-[ros2_control_node-2] [INFO] [1784811744.205441946] [FrankaHardwareInterface]: Registering command interface: wz for command interface cartesian_velocity with index 5
-[ros2_control_node-2] [INFO] [1784811744.205447606] [FrankaHardwareInterface]: Registering command interface: 0 for command interface cartesian_pose_command with index 0
-[ros2_control_node-2] [INFO] [1784811744.205477626] [FrankaHardwareInterface]: Registering command interface: 1 for command interface cartesian_pose_command with index 1
-[ros2_control_node-2] [INFO] [1784811744.205489316] [FrankaHardwareInterface]: Registering command interface: 2 for command interface cartesian_pose_command with index 2
-[ros2_control_node-2] [INFO] [1784811744.205496006] [FrankaHardwareInterface]: Registering command interface: 3 for command interface cartesian_pose_command with index 3
-[ros2_control_node-2] [INFO] [1784811744.205500366] [FrankaHardwareInterface]: Registering command interface: 4 for command interface cartesian_pose_command with index 4
-[ros2_control_node-2] [INFO] [1784811744.205504596] [FrankaHardwareInterface]: Registering command interface: 5 for command interface cartesian_pose_command with index 5
-[ros2_control_node-2] [INFO] [1784811744.205508796] [FrankaHardwareInterface]: Registering command interface: 6 for command interface cartesian_pose_command with index 6
-[ros2_control_node-2] [INFO] [1784811744.205512976] [FrankaHardwareInterface]: Registering command interface: 7 for command interface cartesian_pose_command with index 7
-[ros2_control_node-2] [INFO] [1784811744.205517026] [FrankaHardwareInterface]: Registering command interface: 8 for command interface cartesian_pose_command with index 8
-[ros2_control_node-2] [INFO] [1784811744.205521346] [FrankaHardwareInterface]: Registering command interface: 9 for command interface cartesian_pose_command with index 9
-[ros2_control_node-2] [INFO] [1784811744.205525456] [FrankaHardwareInterface]: Registering command interface: 10 for command interface cartesian_pose_command with index 10
-[ros2_control_node-2] [INFO] [1784811744.205529526] [FrankaHardwareInterface]: Registering command interface: 11 for command interface cartesian_pose_command with index 11
-[ros2_control_node-2] [INFO] [1784811744.205533686] [FrankaHardwareInterface]: Registering command interface: 12 for command interface cartesian_pose_command with index 12
-[ros2_control_node-2] [INFO] [1784811744.205537626] [FrankaHardwareInterface]: Registering command interface: 13 for command interface cartesian_pose_command with index 13
-[ros2_control_node-2] [INFO] [1784811744.205541816] [FrankaHardwareInterface]: Registering command interface: 14 for command interface cartesian_pose_command with index 14
-[ros2_control_node-2] [INFO] [1784811744.205546056] [FrankaHardwareInterface]: Registering command interface: 15 for command interface cartesian_pose_command with index 15
-[ros2_control_node-2] [INFO] [1784811744.205550695] [FrankaHardwareInterface]: Registering command interface: joint_3_position for command interface elbow_command with index 0
-[ros2_control_node-2] [INFO] [1784811744.205555145] [FrankaHardwareInterface]: Registering command interface: joint_4_sign for command interface elbow_command with index 1
-[ros2_control_node-2] [INFO] [1784811744.205628225] [resource_manager]: 'configure' hardware 'FrankaHardwareInterface' 
-[ros2_control_node-2] [INFO] [1784811744.205635585] [resource_manager]: Successful 'configure' of hardware 'FrankaHardwareInterface'
-[ros2_control_node-2] [INFO] [1784811744.205654225] [resource_manager]: 'activate' hardware 'FrankaHardwareInterface' 
-[ros2_control_node-2] [INFO] [1784811744.205963335] [resource_manager]: Successful 'activate' of hardware 'FrankaHardwareInterface'
-[ros2_control_node-2] [WARN] [1784811744.207831495] [controller_manager]: Unable to lock the memory: 'No proper privileges to lock the memory!'
-[ros2_control_node-2] [INFO] [1784811744.207852025] [controller_manager]: update rate is 1000 Hz
-[ros2_control_node-2] [INFO] [1784811744.207860835] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 50
-[ros2_control_node-2] [INFO] [1784811744.208023745] [controller_manager]: Successful set up FIFO RT scheduling policy with priority 50.
-[ros2_control_node-2] [INFO] [1784811744.340122696] [controller_manager]: Loading controller 'cartesian_impedance_controller'
-[ros2_control_node-2] [INFO] [1784811744.382068291] [controller_manager]: Loading controller 'gravity_compensation'
-[ros2_control_node-2] [WARN] [1784811744.392262617] [gravity_compensation]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.
-[ros2_control_node-2] [INFO] [1784811744.394135737] [controller_manager]: Loading controller 'joint_impedance_controller'
-[spawner-7] [INFO] [1784811744.396172236] [spawner_cartesian_impedance_controller]: [94mLoaded [1mcartesian_impedance_controller[0m
-[joint_state_publisher-3] [INFO] [1784811744.402469914] [joint_state_publisher]: Waiting for robot_description to be published on the robot_description topic...
-[ros2_control_node-2] [INFO] [1784811744.404487762] [controller_manager]: Loading controller 'pose_broadcaster'
-[ros2_control_node-2] [INFO] [1784811744.410213280] [controller_manager]: Loading controller 'joint_state_broadcaster'
-[ros2_control_node-2] [INFO] [1784811744.414506939] [controller_manager]: Loading controller 'joint_trajectory_controller'
-[ros2_control_node-2] [WARN] [1784811744.422561416] [joint_trajectory_controller]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.
-[spawner-8] [INFO] [1784811744.423447936] [spawner_gravity_compensation]: [94mLoaded [1mgravity_compensation[0m
-[ros2_control_node-2] [INFO] [1784811744.423555906] [controller_manager]: Loading controller 'franka_robot_state_broadcaster'
-[ros2_control_node-2] [INFO] [1784811744.430342843] [controller_manager]: Configuring controller 'cartesian_impedance_controller'
-[spawner-9] [INFO] [1784811744.432605192] [spawner_joint_impedance_controller]: [94mLoaded [1mjoint_impedance_controller[0m
-[ros2_control_node-2] [INFO] [1784811744.433469272] [cartesian_impedance_controller]: Checking available joints in model:
-[ros2_control_node-2] [INFO] [1784811744.433497992] [cartesian_impedance_controller]: Joint 0 with name universe is of type JointModelRX
-[ros2_control_node-2] [INFO] [1784811744.433507552] [cartesian_impedance_controller]: Joint 1 with name fr3_joint1 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.433516072] [cartesian_impedance_controller]: Joint 2 with name fr3_joint2 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.433521862] [cartesian_impedance_controller]: Joint 3 with name fr3_joint3 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.433527522] [cartesian_impedance_controller]: Joint 4 with name fr3_joint4 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.433533082] [cartesian_impedance_controller]: Joint 5 with name fr3_joint5 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.433538622] [cartesian_impedance_controller]: Joint 6 with name fr3_joint6 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.433544942] [cartesian_impedance_controller]: Joint 7 with name fr3_joint7 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.433552902] [cartesian_impedance_controller]: All joints passed in the parameters exist in the kinematic tree of the URDF.
-[ros2_control_node-2] [INFO] [1784811744.433560202] [cartesian_impedance_controller]: Removing the rest of the joints that are not used: 
-[ros2_control_node-2] [INFO] [1784811744.434590732] [cartesian_impedance_controller]: Variable stiffness topic: target_stiffness
-[ros2_control_node-2] [INFO] [1784811744.434608692] [cartesian_impedance_controller]: State interfaces and control vectors initialized.
-[spawner-6] [INFO] [1784811744.441114429] [spawner_pose_broadcaster]: [94mLoaded [1mpose_broadcaster[0m
-[spawner-4] [INFO] [1784811744.444223028] [spawner_joint_state_broadcaster]: [94mLoaded [1mjoint_state_broadcaster[0m
-[ros2_control_node-2] [INFO] [1784811744.447385347] [controller_manager]: Configuring controller 'gravity_compensation'
-[ros2_control_node-2] [INFO] [1784811744.447519007] [gravity_compensation]: No specific joint names are used for command interfaces. Using 'joints' parameter.
-[ros2_control_node-2] [INFO] [1784811744.447537417] [gravity_compensation]: Command interfaces are [position] and state interfaces are [position velocity].
-[ros2_control_node-2] [INFO] [1784811744.447548347] [gravity_compensation]: Using 'splines' interpolation method.
-[ros2_control_node-2] [INFO] [1784811744.447995987] [gravity_compensation]: Controller state will be published at 50.00 Hz.
-[ros2_control_node-2] [INFO] [1784811744.449899466] [gravity_compensation]: Action status changes will be monitored at 20.00 Hz.
-[ros2_control_node-2] [INFO] [1784811744.452240355] [controller_manager]: Configuring controller 'joint_impedance_controller'
-[spawner-10] [INFO] [1784811744.454963604] [spawner_joint_trajectory_controller]: [94mLoaded [1mjoint_trajectory_controller[0m
-[ros2_control_node-2] [INFO] [1784811744.455419294] [joint_impedance_controller]: Checking available joints in model:
-[ros2_control_node-2] [INFO] [1784811744.455444154] [joint_impedance_controller]: Joint 0 with name universe is of type JointModelRX
-[ros2_control_node-2] [INFO] [1784811744.455482134] [joint_impedance_controller]: Joint 1 with name fr3_joint1 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.455489424] [joint_impedance_controller]: Joint 2 with name fr3_joint2 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.455495454] [joint_impedance_controller]: Joint 3 with name fr3_joint3 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.455501094] [joint_impedance_controller]: Joint 4 with name fr3_joint4 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.455506744] [joint_impedance_controller]: Joint 5 with name fr3_joint5 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.455512364] [joint_impedance_controller]: Joint 6 with name fr3_joint6 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.455517984] [joint_impedance_controller]: Joint 7 with name fr3_joint7 is of type JointModelRZ
-[ros2_control_node-2] [INFO] [1784811744.455524064] [joint_impedance_controller]: All joints passed in the parameters exist in the kinematic tree of the URDF.
-[ros2_control_node-2] [INFO] [1784811744.455530034] [joint_impedance_controller]: Removing the rest of the joints that are not used: 
-[ros2_control_node-2] [INFO] [1784811744.456455053] [joint_impedance_controller]: Variable stiffness topic: target_stiffness
-[ros2_control_node-2] [INFO] [1784811744.456470603] [joint_impedance_controller]: State interfaces and control vectors initialized.
-[spawner-5] [INFO] [1784811744.459280982] [spawner_franka_robot_state_broadcaster]: [94mLoaded [1mfranka_robot_state_broadcaster[0m
-[ros2_control_node-2] [INFO] [1784811744.470514338] [controller_manager]: Configuring controller 'pose_broadcaster'
-[ros2_control_node-2] [INFO] [1784811744.470564338] [pose_broadcaster]: 'joints' or 'interfaces' parameter is empty. All available state interfaces will be published
-[ros2_control_node-2] [INFO] [1784811744.472264998] [controller_manager]: Configuring controller 'joint_state_broadcaster'
-[ros2_control_node-2] [INFO] [1784811744.472300548] [joint_state_broadcaster]: 'joints' or 'interfaces' parameter is empty. All available state interfaces will be published
-[ros2_control_node-2] [INFO] [1784811744.473228977] [controller_manager]: Configuring controller 'joint_trajectory_controller'
-[ros2_control_node-2] [INFO] [1784811744.473352587] [joint_trajectory_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.
-[ros2_control_node-2] [INFO] [1784811744.473367847] [joint_trajectory_controller]: Command interfaces are [position] and state interfaces are [position velocity].
-[ros2_control_node-2] [INFO] [1784811744.473378427] [joint_trajectory_controller]: Using 'splines' interpolation method.
-[ros2_control_node-2] [INFO] [1784811744.473634377] [joint_trajectory_controller]: Controller state will be published at 50.00 Hz.
-[ros2_control_node-2] [INFO] [1784811744.475007457] [joint_trajectory_controller]: Action status changes will be monitored at 20.00 Hz.
-[ros2_control_node-2] [INFO] [1784811744.477419477] [controller_manager]: Configuring controller 'franka_robot_state_broadcaster'
-[ros2_control_node-2] [INFO] [1784811744.485632533] [joint_impedance_controller]: Controller activated.
-[ros2_control_node-2] Stack trace (most recent call last) in thread 274629:
-[spawner-9] [INFO] [1784811744.487355873] [spawner_joint_impedance_controller]: [92mConfigured and activated [1mjoint_impedance_controller[0m
-[ros2_control_node-2] #8    Object "", at 0xffffffffffffffff, in 
-[ros2_control_node-2] #7    Source "../sysdeps/unix/sysv/linux/x86_64/clone3.S", line 81, in __clone3 [0x7fdd2bc568cf]
-[ros2_control_node-2] #6    Source "./nptl/pthread_create.c", line 442, in start_thread [0x7fdd2bbc4ac2]
-[ros2_control_node-2] #5    Source "../../../../../libstdc++-v3/src/c++11/thread.cc", line 104, in execute_native_thread_routine [0x7fdd2be52197]
-[ros2_control_node-2] #4    Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/ros2_control_node", at 0x555e91abb7aa, in main::{lambda()#1}::operator()() const
-[ros2_control_node-2] #3    Object "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/libcontroller_manager.so", at 0x7fdd2c2db48c, in controller_manager::ControllerManager::update(rclcpp::Time const&, rclcpp::Duration const&)
-[ros2_control_node-2] #2    Object "/home/ergodic_group/Matej/pixi_franka_ros2/install/crisp_controllers/lib/libcrisp_controllers.so", at 0x7fdcf067b8d7, in crisp_controllers::CartesianController::update(rclcpp::Time const&, rclcpp::Duration const&)
-[ros2_control_node-2] #1    Object "/home/ergodic_group/Matej/pixi_franka_ros2/install/crisp_controllers/lib/libcrisp_controllers.so", at 0x7fdcf0610822, in void pinocchio::computeFrameJacobian<double, 0, pinocchio::JointCollectionDefaultTpl, Eigen::Matrix<double, -1, 1, 0, -1, 1>, Eigen::Matrix<double, 6, -1, 0, 6, -1> >(pinocchio::ModelTpl<double, 0, pinocchio::JointCollectionDefaultTpl> const&, pinocchio::DataTpl<double, 0, pinocchio::JointCollectionDefaultTpl>&, Eigen::MatrixBase<Eigen::Matrix<double, -1, 1, 0, -1, 1> > const&, unsigned long, pinocchio::ReferenceFrame, Eigen::MatrixBase<Eigen::Matrix<double, 6, -1, 0, 6, -1> > const&)
-[ros2_control_node-2] #0    Object "/home/ergodic_group/Matej/pixi_franka_ros2/install/crisp_controllers/lib/libcrisp_controllers.so", at 0x7fdcf0559ba4, in void Eigen::internal::call_dense_assignment_loop<Eigen::Matrix<double, 3, 3, 0, 3, 3>, Eigen::Matrix<double, 3, 3, 0, 3, 3>, Eigen::internal::assign_op<double, double> >(Eigen::Matrix<double, 3, 3, 0, 3, 3>&, Eigen::Matrix<double, 3, 3, 0, 3, 3> const&, Eigen::internal::assign_op<double, double> const&)
-[ros2_control_node-2] Segmentation fault (Signal sent by the kernel [(nil)])
-[ERROR] [ros2_control_node-2]: process has died [pid 274379, exit code -11, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/ros2_control_node --ros-args -r __ns:=/ --params-file /home/ergodic_group/Matej/pixi_franka_ros2/install/franka_bringup/share/franka_bringup/config/spin.controllers.yaml --params-file /tmp/launch_params_zv2eggl0 --params-file /tmp/launch_params_twthe67w --params-file /tmp/launch_params_35rkohw2 --params-file /tmp/launch_params_j4pmyt74 -r joint_states:=franka/joint_states'].
-[INFO] [launch]: process[ros2_control_node-2] was required: shutting down launched system
-[INFO] [rviz2-11]: sending signal 'SIGINT' to process[rviz2-11]
-[INFO] [spawner-10]: sending signal 'SIGINT' to process[spawner-10]
-[INFO] [spawner-9]: sending signal 'SIGINT' to process[spawner-9]
-[INFO] [spawner-8]: sending signal 'SIGINT' to process[spawner-8]
-[INFO] [spawner-7]: sending signal 'SIGINT' to process[spawner-7]
-[INFO] [spawner-6]: sending signal 'SIGINT' to process[spawner-6]
-[INFO] [spawner-5]: sending signal 'SIGINT' to process[spawner-5]
-[INFO] [spawner-4]: sending signal 'SIGINT' to process[spawner-4]
-[INFO] [joint_state_publisher-3]: sending signal 'SIGINT' to process[joint_state_publisher-3]
-[INFO] [robot_state_publisher-1]: sending signal 'SIGINT' to process[robot_state_publisher-1]
-[rviz2-11] [INFO] [1784811744.642140176] [rclcpp]: signal_handler(signum=2)
-[robot_state_publisher-1] [INFO] [1784811744.648006373] [rclcpp]: signal_handler(signum=2)
-[rviz2-11] [INFO] [1784811744.973616065] [rviz2]: Stereo is NOT SUPPORTED
-[rviz2-11] [INFO] [1784811744.973643055] [rviz2]: OpenGl version: 4.6 (GLSL 4.6)
-[rviz2-11] [INFO] [1784811745.098839519] [rviz2]: Stereo is NOT SUPPORTED
-[rviz2-11] terminate called after throwing an instance of 'rclcpp::exceptions::RCLError'
-[rviz2-11]   what():  failed to create guard condition: the given context is not valid, either rcl_init() was not called or rcl_shutdown() was called., at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1736209862/work/ros-humble-rcl/src/work/src/rcl/guard_condition.c:67
-[ERROR] [rviz2-11]: process has died [pid 274397, exit code -6, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/rviz2/rviz2 --display-config /home/ergodic_group/Matej/pixi_franka_ros2/install/franka_description/share/franka_description/rviz/spin.visualize_franka.rviz -f fr3_link0 --ros-args -r __node:=rviz2'].
-[spawner-7] Traceback (most recent call last):
-[spawner-7]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner", line 33, in <module>
-[spawner-7]     sys.exit(load_entry_point('controller-manager==2.47.0', 'console_scripts', 'spawner')())
-[spawner-7]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[spawner-7]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/controller_manager/spawner.py", line 361, in main
-[spawner-7]     node.destroy_node()
-[spawner-7]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/rclpy/node.py", line 1690, in destroy_node
-[spawner-7]     self.__node.destroy_when_not_in_use()
-[spawner-7] KeyboardInterrupt
-[spawner-8] Traceback (most recent call last):
-[spawner-8]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner", line 33, in <module>
-[spawner-8]     sys.exit(load_entry_point('controller-manager==2.47.0', 'console_scripts', 'spawner')())
-[spawner-8]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[spawner-8]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/controller_manager/spawner.py", line 361, in main
-[spawner-8]     node.destroy_node()
-[spawner-8]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/rclpy/node.py", line 1690, in destroy_node
-[spawner-8]     self.__node.destroy_when_not_in_use()
-[spawner-8] KeyboardInterrupt
-[ERROR] [spawner-7]: process has died [pid 274389, exit code -2, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner cartesian_impedance_controller --inactive --ros-args -r __ns:=/'].
+[ros2_control_node-2] [INFO] [1786375857.588628189] [resource_manager]: Loading hardware 'FrankaHardwareInterface' 
+[franka_gripper_node-6] 1786375857.591511 [42] franka_gri: selected interface "lo" is not multicast-capable: disabling multicast
+[franka_gripper_node-6] [INFO] [1786375857.594730955] [franka_gripper]: Trying to establish a connection with the gripper
+[franka_gripper_node-6] [INFO] [1786375857.595579242] [franka_gripper]: Connected to gripper
+[ros2_control_node-2] [INFO] [1786375857.612913182] [resource_manager]: Initialize hardware 'FrankaHardwareInterface' 
+[ros2_control_node-2] [INFO] [1786375857.612977042] [FrankaHardwareInterface]: Parsed Franka ros2_control interface version: 1.0.0
+[ros2_control_node-2] [INFO] [1786375857.612985612] [FrankaHardwareInterface]: Connecting to robot at "10.90.90.143" ...
+[ros2_control_node-2] [INFO] [1786375857.613490270] [FrankaHardwareInterface]: libfranka: Setting thread priority to the highest possible value.
+[ros2_control_node-2] [INFO] [1786375857.623222361] [FrankaHardwareInterface]: Successfully connected to robot
+[rviz2-12] 1786375857.628359 [42]      rviz2: selected interface "lo" is not multicast-capable: disabling multicast
+[ros2_control_node-2] [INFO] [1786375857.628497119] [service_server]: Service started
+[ros2_control_node-2] [INFO] [1786375857.741067260] [action_server]: Action server started
+[ros2_control_node-2] [INFO] [1786375857.741104980] [resource_manager]: Successful initialization of hardware 'FrankaHardwareInterface'
+[ros2_control_node-2] [INFO] [1786375857.741155640] [FrankaHardwareInterface]: Register joint-based command interfaces
+[ros2_control_node-2] [INFO] [1786375857.741160400] [FrankaHardwareInterface]: Registering command interface: fr3_joint1 for command interface position with index 0
+[ros2_control_node-2] [INFO] [1786375857.741165140] [FrankaHardwareInterface]: Registering command interface: fr3_joint1 for command interface velocity with index 0
+[ros2_control_node-2] [INFO] [1786375857.741169170] [FrankaHardwareInterface]: Registering command interface: fr3_joint1 for command interface effort with index 0
+[ros2_control_node-2] [INFO] [1786375857.741173179] [FrankaHardwareInterface]: Registering command interface: fr3_joint2 for command interface position with index 1
+[ros2_control_node-2] [INFO] [1786375857.741177109] [FrankaHardwareInterface]: Registering command interface: fr3_joint2 for command interface velocity with index 1
+[ros2_control_node-2] [INFO] [1786375857.741180939] [FrankaHardwareInterface]: Registering command interface: fr3_joint2 for command interface effort with index 1
+[ros2_control_node-2] [INFO] [1786375857.741185079] [FrankaHardwareInterface]: Registering command interface: fr3_joint3 for command interface position with index 2
+[ros2_control_node-2] [INFO] [1786375857.741190329] [FrankaHardwareInterface]: Registering command interface: fr3_joint3 for command interface velocity with index 2
+[ros2_control_node-2] [INFO] [1786375857.741194239] [FrankaHardwareInterface]: Registering command interface: fr3_joint3 for command interface effort with index 2
+[ros2_control_node-2] [INFO] [1786375857.741198229] [FrankaHardwareInterface]: Registering command interface: fr3_joint4 for command interface position with index 3
+[ros2_control_node-2] [INFO] [1786375857.741202049] [FrankaHardwareInterface]: Registering command interface: fr3_joint4 for command interface velocity with index 3
+[ros2_control_node-2] [INFO] [1786375857.741205899] [FrankaHardwareInterface]: Registering command interface: fr3_joint4 for command interface effort with index 3
+[ros2_control_node-2] [INFO] [1786375857.741209749] [FrankaHardwareInterface]: Registering command interface: fr3_joint5 for command interface position with index 4
+[ros2_control_node-2] [INFO] [1786375857.741213579] [FrankaHardwareInterface]: Registering command interface: fr3_joint5 for command interface velocity with index 4
+[ros2_control_node-2] [INFO] [1786375857.741217819] [FrankaHardwareInterface]: Registering command interface: fr3_joint5 for command interface effort with index 4
+[ros2_control_node-2] [INFO] [1786375857.741221809] [FrankaHardwareInterface]: Registering command interface: fr3_joint6 for command interface position with index 5
+[ros2_control_node-2] [INFO] [1786375857.741225619] [FrankaHardwareInterface]: Registering command interface: fr3_joint6 for command interface velocity with index 5
+[ros2_control_node-2] [INFO] [1786375857.741229529] [FrankaHardwareInterface]: Registering command interface: fr3_joint6 for command interface effort with index 5
+[ros2_control_node-2] [INFO] [1786375857.741233509] [FrankaHardwareInterface]: Registering command interface: fr3_joint7 for command interface position with index 6
+[ros2_control_node-2] [INFO] [1786375857.741237339] [FrankaHardwareInterface]: Registering command interface: fr3_joint7 for command interface velocity with index 6
+[ros2_control_node-2] [INFO] [1786375857.741241189] [FrankaHardwareInterface]: Registering command interface: fr3_joint7 for command interface effort with index 6
+[ros2_control_node-2] [INFO] [1786375857.741284749] [FrankaHardwareInterface]: Register general purpose command interfaces
+[ros2_control_node-2] [INFO] [1786375857.741289359] [FrankaHardwareInterface]: Registering command interface: vx for command interface cartesian_velocity with index 0
+[ros2_control_node-2] [INFO] [1786375857.741293759] [FrankaHardwareInterface]: Registering command interface: vy for command interface cartesian_velocity with index 1
+[ros2_control_node-2] [INFO] [1786375857.741297799] [FrankaHardwareInterface]: Registering command interface: vz for command interface cartesian_velocity with index 2
+[ros2_control_node-2] [INFO] [1786375857.741301789] [FrankaHardwareInterface]: Registering command interface: wx for command interface cartesian_velocity with index 3
+[ros2_control_node-2] [INFO] [1786375857.741305879] [FrankaHardwareInterface]: Registering command interface: wy for command interface cartesian_velocity with index 4
+[ros2_control_node-2] [INFO] [1786375857.741309879] [FrankaHardwareInterface]: Registering command interface: wz for command interface cartesian_velocity with index 5
+[ros2_control_node-2] [INFO] [1786375857.741315789] [FrankaHardwareInterface]: Registering command interface: 0 for command interface cartesian_pose_command with index 0
+[ros2_control_node-2] [INFO] [1786375857.741321579] [FrankaHardwareInterface]: Registering command interface: 1 for command interface cartesian_pose_command with index 1
+[ros2_control_node-2] [INFO] [1786375857.741325539] [FrankaHardwareInterface]: Registering command interface: 2 for command interface cartesian_pose_command with index 2
+[ros2_control_node-2] [INFO] [1786375857.741329509] [FrankaHardwareInterface]: Registering command interface: 3 for command interface cartesian_pose_command with index 3
+[ros2_control_node-2] [INFO] [1786375857.741333369] [FrankaHardwareInterface]: Registering command interface: 4 for command interface cartesian_pose_command with index 4
+[ros2_control_node-2] [INFO] [1786375857.741337289] [FrankaHardwareInterface]: Registering command interface: 5 for command interface cartesian_pose_command with index 5
+[ros2_control_node-2] [INFO] [1786375857.741341189] [FrankaHardwareInterface]: Registering command interface: 6 for command interface cartesian_pose_command with index 6
+[ros2_control_node-2] [INFO] [1786375857.741345029] [FrankaHardwareInterface]: Registering command interface: 7 for command interface cartesian_pose_command with index 7
+[ros2_control_node-2] [INFO] [1786375857.741349019] [FrankaHardwareInterface]: Registering command interface: 8 for command interface cartesian_pose_command with index 8
+[ros2_control_node-2] [INFO] [1786375857.741362249] [FrankaHardwareInterface]: Registering command interface: 9 for command interface cartesian_pose_command with index 9
+[ros2_control_node-2] [INFO] [1786375857.741366329] [FrankaHardwareInterface]: Registering command interface: 10 for command interface cartesian_pose_command with index 10
+[ros2_control_node-2] [INFO] [1786375857.741370469] [FrankaHardwareInterface]: Registering command interface: 11 for command interface cartesian_pose_command with index 11
+[ros2_control_node-2] [INFO] [1786375857.741374389] [FrankaHardwareInterface]: Registering command interface: 12 for command interface cartesian_pose_command with index 12
+[ros2_control_node-2] [INFO] [1786375857.741378439] [FrankaHardwareInterface]: Registering command interface: 13 for command interface cartesian_pose_command with index 13
+[ros2_control_node-2] [INFO] [1786375857.741382319] [FrankaHardwareInterface]: Registering command interface: 14 for command interface cartesian_pose_command with index 14
+[ros2_control_node-2] [INFO] [1786375857.741386209] [FrankaHardwareInterface]: Registering command interface: 15 for command interface cartesian_pose_command with index 15
+[ros2_control_node-2] [INFO] [1786375857.741390239] [FrankaHardwareInterface]: Registering command interface: joint_3_position for command interface elbow_command with index 0
+[ros2_control_node-2] [INFO] [1786375857.741394319] [FrankaHardwareInterface]: Registering command interface: joint_4_sign for command interface elbow_command with index 1
+[ros2_control_node-2] [INFO] [1786375857.741460298] [resource_manager]: 'configure' hardware 'FrankaHardwareInterface' 
+[ros2_control_node-2] [INFO] [1786375857.741466598] [resource_manager]: Successful 'configure' of hardware 'FrankaHardwareInterface'
+[ros2_control_node-2] [INFO] [1786375857.741484488] [resource_manager]: 'activate' hardware 'FrankaHardwareInterface' 
+[ros2_control_node-2] [INFO] [1786375857.741771607] [resource_manager]: Successful 'activate' of hardware 'FrankaHardwareInterface'
+[ros2_control_node-2] [WARN] [1786375857.743522541] [controller_manager]: Unable to lock the memory: 'No proper privileges to lock the memory!'
+[ros2_control_node-2] [INFO] [1786375857.743536370] [controller_manager]: update rate is 1000 Hz
+[ros2_control_node-2] [INFO] [1786375857.743544070] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 98
+[ros2_control_node-2] [INFO] [1786375857.743714580] [controller_manager]: Successful set up FIFO RT scheduling policy with priority 98.
+[joint_state_publisher-3] 1786375857.846639 [42] joint_stat: selected interface "lo" is not multicast-capable: disabling multicast
+[spawner-4] 1786375857.849962 [42]    spawner: selected interface "lo" is not multicast-capable: disabling multicast
+[spawner-7] 1786375857.852487 [42]    spawner: selected interface "lo" is not multicast-capable: disabling multicast
+[spawner-9] 1786375857.860465 [42]    spawner: selected interface "lo" is not multicast-capable: disabling multicast
+[spawner-8] 1786375857.871964 [42]    spawner: selected interface "lo" is not multicast-capable: disabling multicast
+[spawner-10] 1786375857.873272 [42]    spawner: selected interface "lo" is not multicast-capable: disabling multicast
+[spawner-10] 1786375857.873587 [42]    spawner: Failed to find a free participant index for domain 42
+[spawner-10] [ERROR] [1786375857.873614540] [rmw_cyclonedds_cpp]: rmw_create_node: failed to create domain, error Error
+[spawner-10] 
+[spawner-10] >>> [rcutils|error_handling.c:108] rcutils_set_error_state()
+[spawner-10] This error state is being overwritten:
+[spawner-10] 
+[spawner-10]   'error not set, at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1736209862/work/ros-humble-rcl/src/work/src/rcl/node.c:263'
+[spawner-10] 
+[spawner-10] with this new error message:
+[spawner-10] 
+[spawner-10]   'rcl node's rmw handle is invalid, at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1736209862/work/ros-humble-rcl/src/work/src/rcl/node.c:415'
+[spawner-10] 
+[spawner-10] rcutils_reset_error() should be called after error handling to avoid this.
+[spawner-10] <<<
+[spawner-10] [ERROR] [1786375857.873641380] [rcl]: Failed to fini publisher for node: 1
 [spawner-10] Traceback (most recent call last):
 [spawner-10]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner", line 33, in <module>
 [spawner-10]     sys.exit(load_entry_point('controller-manager==2.47.0', 'console_scripts', 'spawner')())
 [spawner-10]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[spawner-10]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/controller_manager/spawner.py", line 361, in main
-[spawner-10]     node.destroy_node()
-[spawner-10]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/rclpy/node.py", line 1690, in destroy_node
-[spawner-10]     self.__node.destroy_when_not_in_use()
-[spawner-10] KeyboardInterrupt
-[ERROR] [spawner-8]: process has died [pid 274391, exit code -2, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner gravity_compensation --inactive --ros-args -r __ns:=/'].
-[spawner-9] Traceback (most recent call last):
-[spawner-9]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner", line 33, in <module>
-[spawner-9]     sys.exit(load_entry_point('controller-manager==2.47.0', 'console_scripts', 'spawner')())
-[spawner-9]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[spawner-9]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/controller_manager/spawner.py", line 361, in main
-[spawner-9]     node.destroy_node()
-[spawner-9]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/rclpy/node.py", line 1690, in destroy_node
-[spawner-9]     self.__node.destroy_when_not_in_use()
-[spawner-9] KeyboardInterrupt
-[ERROR] [spawner-10]: process has died [pid 274395, exit code -2, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner joint_trajectory_controller --inactive --ros-args -r __ns:=/'].
-[ERROR] [spawner-9]: process has died [pid 274393, exit code -2, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner joint_impedance_controller --controller-manager-timeout 30 --ros-args -r __ns:=/'].
-[INFO] [robot_state_publisher-1]: process has finished cleanly [pid 274377]
-[INFO] [joint_state_publisher-3]: process has finished cleanly [pid 274381]
-[ERROR] [spawner-6]: process[spawner-6] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
-[ERROR] [spawner-5]: process[spawner-5] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
-[ERROR] [spawner-4]: process[spawner-4] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
-[INFO] [spawner-6]: sending signal 'SIGTERM' to process[spawner-6]
-[INFO] [spawner-5]: sending signal 'SIGTERM' to process[spawner-5]
-[INFO] [spawner-4]: sending signal 'SIGTERM' to process[spawner-4]
-[ERROR] [spawner-6]: process has died [pid 274387, exit code -15, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner pose_broadcaster --ros-args -r __ns:=/'].
-[ERROR] [spawner-5]: process has died [pid 274385, exit code -15, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner franka_robot_state_broadcaster --ros-args -r __ns:=/'].
-[ERROR] [spawner-4]: process has died [pid 274383, exit code -15, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner joint_state_broadcaster --ros-args -r __ns:=/'].
+[spawner-10]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/controller_manager/spawner.py", line 174, in main
+[spawner-10]     node = Node("spawner_" + controller_names[0])
+[spawner-10]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[spawner-10]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/rclpy/node.py", line 175, in __init__
+[spawner-10]     self.__node = _rclpy.Node(
+[spawner-10]                   ^^^^^^^^^^^^
+[spawner-10] rclpy._rclpy_pybind11.RCLError: error creating node: rcl node's rmw handle is invalid, at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1736209862/work/ros-humble-rcl/src/work/src/rcl/node.c:415
+[spawner-11] 1786375857.882933 [42]    spawner: selected interface "lo" is not multicast-capable: disabling multicast
+[spawner-11] 1786375857.883295 [42]    spawner: Failed to find a free participant index for domain 42
+[spawner-11] [ERROR] [1786375857.883327752] [rmw_cyclonedds_cpp]: rmw_create_node: failed to create domain, error Error
+[spawner-11] 
+[spawner-11] >>> [rcutils|error_handling.c:108] rcutils_set_error_state()
+[spawner-11] This error state is being overwritten:
+[spawner-11] 
+[spawner-11]   'error not set, at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1736209862/work/ros-humble-rcl/src/work/src/rcl/node.c:263'
+[spawner-11] 
+[spawner-11] with this new error message:
+[spawner-11] 
+[spawner-11]   'rcl node's rmw handle is invalid, at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1736209862/work/ros-humble-rcl/src/work/src/rcl/node.c:415'
+[spawner-11] 
+[spawner-11] rcutils_reset_error() should be called after error handling to avoid this.
+[spawner-11] <<<
+[spawner-11] [ERROR] [1786375857.883351612] [rcl]: Failed to fini publisher for node: 1
+[spawner-11] Traceback (most recent call last):
+[spawner-11]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner", line 33, in <module>
+[spawner-11]     sys.exit(load_entry_point('controller-manager==2.47.0', 'console_scripts', 'spawner')())
+[spawner-11]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[spawner-11]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/controller_manager/spawner.py", line 174, in main
+[spawner-11]     node = Node("spawner_" + controller_names[0])
+[spawner-11]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[spawner-11]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/rclpy/node.py", line 175, in __init__
+[spawner-11]     self.__node = _rclpy.Node(
+[spawner-11]                   ^^^^^^^^^^^^
+[spawner-11] rclpy._rclpy_pybind11.RCLError: error creating node: rcl node's rmw handle is invalid, at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1736209862/work/ros-humble-rcl/src/work/src/rcl/node.c:415
+[ros2_control_node-2] [INFO] [1786375857.884607307] [controller_manager]: Loading controller 'gravity_compensation'
+[ros2_control_node-2] [INFO] [1786375857.894318577] [controller_manager]: Loading controller 'pose_broadcaster'
+[spawner-5] 1786375857.898810 [42]    spawner: selected interface "lo" is not multicast-capable: disabling multicast
+[spawner-5] 1786375857.899163 [42]    spawner: Failed to find a free participant index for domain 42
+[spawner-5] [ERROR] [1786375857.899190098] [rmw_cyclonedds_cpp]: rmw_create_node: failed to create domain, error Error
+[spawner-5] 
+[spawner-5] >>> [rcutils|error_handling.c:108] rcutils_set_error_state()
+[spawner-5] This error state is being overwritten:
+[spawner-5] 
+[spawner-5]   'error not set, at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1736209862/work/ros-humble-rcl/src/work/src/rcl/node.c:263'
+[spawner-5] 
+[spawner-5] with this new error message:
+[spawner-5] 
+[spawner-5]   'rcl node's rmw handle is invalid, at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1736209862/work/ros-humble-rcl/src/work/src/rcl/node.c:415'
+[spawner-5] 
+[spawner-5] rcutils_reset_error() should be called after error handling to avoid this.
+[spawner-5] <<<
+[spawner-5] [ERROR] [1786375857.899212578] [rcl]: Failed to fini publisher for node: 1
+[spawner-5] Traceback (most recent call last):
+[spawner-5]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner", line 33, in <module>
+[spawner-5]     sys.exit(load_entry_point('controller-manager==2.47.0', 'console_scripts', 'spawner')())
+[spawner-5]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[spawner-5]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/controller_manager/spawner.py", line 174, in main
+[spawner-5]     node = Node("spawner_" + controller_names[0])
+[spawner-5]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[spawner-5]   File "/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/python3.11/site-packages/rclpy/node.py", line 175, in __init__
+[spawner-5]     self.__node = _rclpy.Node(
+[spawner-5]                   ^^^^^^^^^^^^
+[spawner-5] rclpy._rclpy_pybind11.RCLError: error creating node: rcl node's rmw handle is invalid, at /home/runner/conda-bld/bld/rattler-build_ros-humble-rcl_1736209862/work/ros-humble-rcl/src/work/src/rcl/node.c:415
+[ros2_control_node-2] [INFO] [1786375857.901000881] [controller_manager]: Loading controller 'cartesian_impedance_controller'
+[ERROR] [spawner-10]: process has died [pid 22248, exit code 1, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner joint_impedance_controller --inactive --controller-manager-timeout 30 --ros-args -r __ns:=/'].
+[ros2_control_node-2] [INFO] [1786375857.910115284] [controller_manager]: Loading controller 'joint_state_broadcaster'
+[joint_state_publisher-3] [INFO] [1786375857.912363036] [joint_state_publisher]: Waiting for robot_description to be published on the robot_description topic...
+[spawner-9] [INFO] [1786375857.922724464] [spawner_gravity_compensation]: [94mLoaded [1mgravity_compensation[0m
+[ros2_control_node-2] [INFO] [1786375857.923406462] [controller_manager]: Configuring controller 'gravity_compensation'
+[ros2_control_node-2] [INFO] [1786375857.926360570] [gravity_compensation]: Checking available joints in model:
+[ros2_control_node-2] [INFO] [1786375857.926389790] [gravity_compensation]: Joint 0 with name universe is of type JointModelRX
+[ros2_control_node-2] [INFO] [1786375857.926402430] [gravity_compensation]: Joint 1 with name fr3_joint1 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.926411730] [gravity_compensation]: Joint 2 with name fr3_joint2 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.926420490] [gravity_compensation]: Joint 3 with name fr3_joint3 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.926428999] [gravity_compensation]: Joint 4 with name fr3_joint4 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.926437299] [gravity_compensation]: Joint 5 with name fr3_joint5 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.926445759] [gravity_compensation]: Joint 6 with name fr3_joint6 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.926453939] [gravity_compensation]: Joint 7 with name fr3_joint7 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.926462309] [gravity_compensation]: Joint 8 with name fr3_finger_joint1 is of type JointModelPY
+[ros2_control_node-2] [INFO] [1786375857.926470579] [gravity_compensation]: Joint 9 with name fr3_finger_joint2 is of type JointModelPY
+[ros2_control_node-2] [INFO] [1786375857.926478679] [gravity_compensation]: All joints passed in the parameters exist in the kinematic tree of the URDF.
+[ros2_control_node-2] [INFO] [1786375857.926488369] [gravity_compensation]: Removing the rest of the joints that are not used: 
+[ros2_control_node-2] [INFO] [1786375857.926497809] [gravity_compensation]: Joint fr3_finger_joint1 is not used, removing it from the model.
+[ros2_control_node-2] [INFO] [1786375857.926506559] [gravity_compensation]: Joint fr3_finger_joint2 is not used, removing it from the model.
+[ERROR] [spawner-11]: process has died [pid 22250, exit code 1, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner joint_trajectory_controller --inactive --ros-args -r __ns:=/'].
+[spawner-7] [INFO] [1786375857.927343346] [spawner_pose_broadcaster]: [94mLoaded [1mpose_broadcaster[0m
+[ros2_control_node-2] [INFO] [1786375857.927702464] [gravity_compensation]: Variable stiffness topic: target_stiffness
+[ros2_control_node-2] [INFO] [1786375857.927717894] [gravity_compensation]: State interfaces and control vectors initialized.
+[ERROR] [spawner-5]: process has died [pid 22238, exit code 1, cmd '/home/ergodic_group/Matej/pixi_franka_ros2/.pixi/envs/humble/lib/controller_manager/spawner franka_robot_state_broadcaster --ros-args -r __ns:=/'].
+[spawner-8] [INFO] [1786375857.938146782] [spawner_cartesian_impedance_controller]: [94mLoaded [1mcartesian_impedance_controller[0m
+[ros2_control_node-2] [INFO] [1786375857.941174490] [controller_manager]: Configuring controller 'pose_broadcaster'
+[ros2_control_node-2] [INFO] [1786375857.944288718] [pose_broadcaster]: Checking available joints in model:
+[ros2_control_node-2] [INFO] [1786375857.944315318] [pose_broadcaster]: Joint 0 with name universe is of type JointModelRX
+[ros2_control_node-2] [INFO] [1786375857.944325008] [pose_broadcaster]: Joint 1 with name fr3_joint1 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.944331148] [pose_broadcaster]: Joint 2 with name fr3_joint2 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.944336788] [pose_broadcaster]: Joint 3 with name fr3_joint3 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.944342888] [pose_broadcaster]: Joint 4 with name fr3_joint4 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.944348408] [pose_broadcaster]: Joint 5 with name fr3_joint5 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.944353878] [pose_broadcaster]: Joint 6 with name fr3_joint6 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.944359518] [pose_broadcaster]: Joint 7 with name fr3_joint7 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.944365118] [pose_broadcaster]: Joint 8 with name fr3_finger_joint1 is of type JointModelPY
+[ros2_control_node-2] [INFO] [1786375857.944370708] [pose_broadcaster]: Joint 9 with name fr3_finger_joint2 is of type JointModelPY
+[ros2_control_node-2] [INFO] [1786375857.944376218] [pose_broadcaster]: All joints passed in the parameters exist in the kinematic tree of the URDF.
+[ros2_control_node-2] [INFO] [1786375857.944407958] [pose_broadcaster]: Removing the rest of the joints that are not used: 
+[ros2_control_node-2] [INFO] [1786375857.944414698] [pose_broadcaster]: Joint fr3_finger_joint1 is not used, removing it from the model.
+[ros2_control_node-2] [INFO] [1786375857.944420388] [pose_broadcaster]: Joint fr3_finger_joint2 is not used, removing it from the model.
+[spawner-4] [INFO] [1786375857.944963466] [spawner_joint_state_broadcaster]: [94mLoaded [1mjoint_state_broadcaster[0m
+[ros2_control_node-2] [INFO] [1786375857.958072132] [controller_manager]: Configuring controller 'cartesian_impedance_controller'
+[ros2_control_node-2] [INFO] [1786375857.961237810] [cartesian_impedance_controller]: Checking available joints in model:
+[ros2_control_node-2] [INFO] [1786375857.961264580] [cartesian_impedance_controller]: Joint 0 with name universe is of type JointModelRX
+[ros2_control_node-2] [INFO] [1786375857.961284100] [cartesian_impedance_controller]: Joint 1 with name fr3_joint1 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.961291900] [cartesian_impedance_controller]: Joint 2 with name fr3_joint2 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.961299350] [cartesian_impedance_controller]: Joint 3 with name fr3_joint3 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.961306510] [cartesian_impedance_controller]: Joint 4 with name fr3_joint4 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.961313360] [cartesian_impedance_controller]: Joint 5 with name fr3_joint5 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.961320190] [cartesian_impedance_controller]: Joint 6 with name fr3_joint6 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.961327070] [cartesian_impedance_controller]: Joint 7 with name fr3_joint7 is of type JointModelRZ
+[ros2_control_node-2] [INFO] [1786375857.961334360] [cartesian_impedance_controller]: Joint 8 with name fr3_finger_joint1 is of type JointModelPY
+[ros2_control_node-2] [INFO] [1786375857.961341420] [cartesian_impedance_controller]: Joint 9 with name fr3_finger_joint2 is of type JointModelPY
+[ros2_control_node-2] [INFO] [1786375857.961348190] [cartesian_impedance_controller]: All joints passed in the parameters exist in the kinematic tree of the URDF.
+[ros2_control_node-2] [INFO] [1786375857.961355110] [cartesian_impedance_controller]: Removing the rest of the joints that are not used: 
+[ros2_control_node-2] [INFO] [1786375857.961362910] [cartesian_impedance_controller]: Joint fr3_finger_joint1 is not used, removing it from the model.
+[ros2_control_node-2] [INFO] [1786375857.961370250] [cartesian_impedance_controller]: Joint fr3_finger_joint2 is not used, removing it from the model.
+[ros2_control_node-2] [INFO] [1786375857.962265536] [cartesian_impedance_controller]: Variable stiffness topic: target_stiffness
+[ros2_control_node-2] [INFO] [1786375857.962281996] [cartesian_impedance_controller]: State interfaces and control vectors initialized.
+[ros2_control_node-2] [INFO] [1786375857.974958075] [controller_manager]: Configuring controller 'joint_state_broadcaster'
+[ros2_control_node-2] [INFO] [1786375857.975024825] [joint_state_broadcaster]: 'joints' or 'interfaces' parameter is empty. All available state interfaces will be published
+[spawner-7] [INFO] [1786375857.979660616] [spawner_pose_broadcaster]: [92mConfigured and activated [1mpose_broadcaster[0m
+[ros2_control_node-2] [INFO] [1786375857.981108001] [cartesian_impedance_controller]: Controller activated.
+[spawner-8] [INFO] [1786375857.982769334] [spawner_cartesian_impedance_controller]: [92mConfigured and activated [1mcartesian_impedance_controller[0m
+[spawner-4] [INFO] [1786375857.984882726] [spawner_joint_state_broadcaster]: [92mConfigured and activated [1mjoint_state_broadcaster[0m
+[INFO] [spawner-9]: process has finished cleanly [pid 22246]
+[INFO] [spawner-7]: process has finished cleanly [pid 22242]
+[INFO] [spawner-4]: process has finished cleanly [pid 22236]
+[INFO] [spawner-8]: process has finished cleanly [pid 22244]
+[rviz2-12] [INFO] [1786375858.470874262] [rviz2]: Stereo is NOT SUPPORTED
+[rviz2-12] [INFO] [1786375858.470936612] [rviz2]: OpenGl version: 4.6 (GLSL 4.6)
+[rviz2-12] [INFO] [1786375858.565267503] [rviz2]: Stereo is NOT SUPPORTED
