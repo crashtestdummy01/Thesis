@@ -2,6 +2,7 @@ import numpy as np
 import plotly.graph_objects as go
 import pandas as pd
 import plotly.express as px
+import sys
 
 def plot_trajectory():
 	data = np.load('long_trajectory.npy')
@@ -47,53 +48,28 @@ def plot_trajectory():
 	fig.show()
 
 def plot_force():
-	CSV_FILE = 'force_data.csv'
-	FORCE_THRESHOLD = 4.0  # Threshold X in Newtons (e.g., 0.5 N)
+	exp_num = sys.argv[1] if len(sys.argv) > 1 else "0"
+	CSV_FILE = f'force_data-{exp_num}.csv'
+	FORCE_THRESHOLD = 0.0  # Threshold X in Newtons (e.g., 0.5 N)
 
 	# 1. Load raw CSV data
 	df = pd.read_csv(CSV_FILE)
 
-	# 2. Apply filtering options (choose the behavior that fits your analysis)
-
-	# Option A: Deadband Clamping (Sets sensor chatter between -X and +X to 0.0 N)
-	df['force_z_filtered'] = df['force_z'].apply(
-	    lambda f: 0.0 if abs(f) < FORCE_THRESHOLD else f
-	)
-
-	# Option B: Masking (Converts noise to NaN, creating visible line gaps in Plotly)
-	# df['force_z_filtered'] = df['force_z'].mask(df['force_z'].abs() < FORCE_THRESHOLD)
-
-	# Option C: Hard Drop (Removes noise rows entirely)
-	# df_filtered = df[df['force_z'].abs() >= FORCE_THRESHOLD]
-
-	# 3. Plot Raw vs. Filtered Z-Force
 	fig = go.Figure()
-
-	# Raw trace for reference
-	fig.add_trace(
-	    go.Scatter(
-		x=df['time_s'],
-		y=df['force_z'],
-		mode='lines',
-		name='Raw Signal',
-		line=dict(color='lightgray', width=1),
-		opacity=0.7
-	    )
-	)
 
 	# Filtered trace overlay
 	fig.add_trace(
 	    go.Scatter(
 		x=df['time_s'],
-		y=df['force_z_filtered'],
+		y=df['force_z'],
 		mode='lines',
-		name=f'Filtered (|Fz| >= {FORCE_THRESHOLD} N)',
+		name=f'Force (N))',
 		line=dict(color='royalblue', width=2)
 	    )
 	)
 
 	fig.update_layout(
-	    title='Cartesian Z-Force Analysis (Raw vs. Post-Filtered)',
+	    title='Cartesian contact Force',
 	    xaxis_title='Time (s)',
 	    yaxis_title='Z-Force (N)',
 	    template='plotly_white',

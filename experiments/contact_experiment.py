@@ -16,12 +16,12 @@ class SurfaceContactSlidingNode(Node):
         self.current_pose_topic = '/franka_robot_state_broadcaster/current_pose'
 
         # Motion & Force Parameter
-        self.approach_speed_z = 0.01   # 3 mm/s descent speed
-        self.slide_speed_x = 0.01      # 8 mm/s forward sliding speed
-        self.slide_distance_x = 0.05    # 10 cm slide distance
+        self.approach_speed_z = 0.015   # 1 cm/s descent speed
+        self.slide_speed_x = 0.01      # 1 cm/s forward sliding speed
+        self.slide_distance_x = 0.1    # 10 cm slide distance
         self.contact_threshold_N = 6.5  # Force spike threshold to register contact (N)
-        self.target_push_force_z = -4.0  # Constant bias force into surface (N)
-        self.surface_offset_z = 0.005   # 1 mm above surface to avoid position spring fighting
+        self.target_push_force_z = -5.0  # Constant bias force into surface (N)
+        self.surface_offset_z = 0.01   # 1 mm above surface to avoid position spring fighting
 
         # Publishers & Subscribers
         self.pose_pub = self.create_publisher(PoseStamped, self.target_pose_topic, 10)

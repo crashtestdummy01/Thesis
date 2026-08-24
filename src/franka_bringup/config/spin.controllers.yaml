@@ -365,8 +365,8 @@
 
       filter:
         q: 0.5
-        dq: 0.5
-        output_torque: 0.5
+        dq: 0.9
+        output_torque: 0.85
 
       task:
         k_pos_x: 800.0
@@ -383,7 +383,7 @@
       #   enabled: true
       #   timing: true
 
-      use_friction: true
+      use_friction: false
       use_coriolis_compensation: true
       use_local_jacobian: false
 

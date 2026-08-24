@@ -3,6 +3,7 @@
 import csv
 import rclpy
 import numpy as np
+import sys
 
 
 from enum import Enum, auto
@@ -13,7 +14,6 @@ from geometry_msgs.msg import WrenchStamped
 
 
 CONTACT_THRESH_N = 6.5
-CSV_FILE = Template("exp-${seq_number}")
 
 
 class LoggerState(Enum):
@@ -32,7 +32,7 @@ class ForceLogger(Node):
             10
         )
 
-        self.ring_buffer = deque(maxlen=100)
+        self.ring_buffer = deque(maxlen=500)
 
         self.state = LoggerState.READY
         self.start_time = None
@@ -83,7 +83,7 @@ class ForceLogger(Node):
     def destroy_node(self):
         if hasattr(self, 'csv_file') and not self.csv_file.closed:
             self.csv_file.close()
-            self.get_logger().info("Recording done.")
+            print("Recording done.")
 
         super().destroy_node()
 
