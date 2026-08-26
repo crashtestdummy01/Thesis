@@ -65,6 +65,9 @@ numpy = "*"
 libopengl = "*"
 libegl-devel = "*"
 
+[feature.humble.pypi-dependencies]
+python-statemachine = ">=3.2.1, <4"
+
 # jazzy
 [feature.jazzy]
 channels = ["https://prefix.dev/robostack-jazzy"]
