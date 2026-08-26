@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from __future__ import annotations
 
 from copy import deepcopy
 import rclpy
+import math
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped, WrenchStamped
 from statemachine import StateChart, State
@@ -13,12 +13,14 @@ class SurfaceContactFSM(StateChart):
     approaching = State()
     sliding = State()
     retracting = State()
+    resetting = State()
     done = State()
 
     start_approach = init.to(approaching)
     trigger_slide = approaching.to(sliding)
     trigger_retract = sliding.to(retracting)
-    finish = retracting.to(done)
+    trigger_reset = retracting.to(resetting)
+    finish = resetting.to(done)
 
     def __init__(self, node):
         self.node = node
@@ -28,6 +30,7 @@ class SurfaceContactFSM(StateChart):
             'approaching': ApproachState(),
             'sliding': SlideState(),
             'retracting': RetractState(),
+            'resetting': ResetState(),
             'done': DoneState(),
         }
 
@@ -60,6 +63,7 @@ class ContactExperiment(Node):
         self.current_force_z = 0.0
         self.current_pose_received = False
         self.target_pose = PoseStamped()
+        self.initial_pose = PoseStamped()
         self.surface_z = 0.0
         self.slide_start_x = 0.0
 
@@ -187,6 +191,36 @@ class RetractState(StateBehavior):
         node.publish_wrench(0.0)
         node.target_pose.pose.position.z += 0.02
         node.fsm.finish()
+
+
+class ResetState(StateBehavior):
+    """Slowly linearly interpolate target_pose back to initial_pose."""
+    def on_enter(self, node: Node):
+        node.get_logger().info("Resetting arm back to initial pose...")
+
+    def tick(self, node):
+        node.publish_wrench(0.0)
+
+        curr_p = node.target_pose.pose.position
+        init_p = node.initial_pose.pose.position
+
+        dx = init_p.x - curr_p.x
+        dy = init_p.y - curr_p.y
+        dz = init_p.z - curr_p.z
+        distance = math.sqrt(dx * dx + dy * dy + dz * dz)
+
+        step_dist = node.reset_speed * node.dt
+
+        if distance <= step_dist:
+            node.target_pose.pose.position.x = init_p.x
+            node.target_pose.pose.position.y = init_p.y
+            node.target_pose.pose.position.z = init_p.z
+            node.fsm.finish()
+        else:
+            ratio = step_dist / distance
+            node.target_pose.pose.position.x += dx * ratio
+            node.target_pose.pose.position.y += dy * ratio
+            node.target_pose.pose.position.z += dz * ratio
 
 
 class DoneState(StateBehavior):
