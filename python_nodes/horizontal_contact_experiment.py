@@ -5,6 +5,7 @@ import rclpy
 import math
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped, WrenchStamped
+from std_msgs.msg import Float64MultiArray
 from statemachine import StateChart, State
 
 
@@ -14,7 +15,7 @@ class SurfaceContactFSM(StateChart):
     sliding = State()
     retracting = State()
     resetting = State()
-    done = State()
+    done = State(final=True)
 
     start_approach = init.to(approaching)
     trigger_slide = approaching.to(sliding)
@@ -53,11 +54,12 @@ class ContactExperiment(Node):
         super().__init__('surface_contact_node')
 
         # Configuration & Variables
-        self.approach_speed_z = 0.01
+        self.approach_speed_z = 0.015
         self.slide_speed_x = 0.01
-        self.slide_distance_x = 0.1
+        self.reset_speed = 0.04
+        self.slide_distance_x = 0.15
         self.contact_threshold_N = 6.5
-        self.target_push_force_z = -4.0
+        self.target_push_force_z = -6.0
         self.surface_offset_z = 0.01
 
         self.current_force_z = 0.0
@@ -70,6 +72,7 @@ class ContactExperiment(Node):
         # ROS Setup
         self.pose_pub = self.create_publisher(PoseStamped, 'target_pose', 10)
         self.wrench_pub = self.create_publisher(WrenchStamped, 'target_wrench', 10)
+        self.stiffness_pub = self.create_publisher(Float64MultiArray, '/target_stiffness', 10)
 
         self.force_sub = self.create_subscription(
             WrenchStamped, '/cartesian_impedance_controller/measured_force', self.force_callback, 10
@@ -77,6 +80,7 @@ class ContactExperiment(Node):
         self.pose_sub = self.create_subscription(
             PoseStamped, '/franka_robot_state_broadcaster/current_pose', self.current_pose_callback, 10
         )
+
 
         # Attach State Coordinator
         self.fsm = SurfaceContactFSM(node=self)
@@ -104,6 +108,8 @@ class ContactExperiment(Node):
             self.target_pose.pose.orientation.z = z * w_o + w * z_o
             self.target_pose.pose.orientation.w = w * w_o - z * z_o
             self.current_pose_received = True
+            
+            self.initial_pose = deepcopy(self.target_pose)
 
     def publish_wrench(self, force_z):
         msg = WrenchStamped()
@@ -111,6 +117,24 @@ class ContactExperiment(Node):
         msg.header.frame_id = 'hand'
         msg.wrench.force.z = force_z
         self.wrench_pub.publish(msg)
+        
+    def publish_stiffness(self, k_trans):
+        msg = Float64MultiArray()
+
+        msg.data = [
+            float(k_trans[0]),
+            float(k_trans[1]),
+            float(k_trans[2]),
+            float(30.0),
+            float(30.0),
+            float(30.0),
+        ]
+
+        # Uncomment this to work
+        self.stiffness_pub.publish(msg)
+        self.get_logger().info(
+            f'Published Stiffness -> {msg.data}'
+        )
 
     def control_loop(self):
         self.fsm.tick()
@@ -168,6 +192,7 @@ class SlideState(StateBehavior):
     def on_enter(self, node):
         node.surface_z = node.target_pose.pose.position.z
         node.slide_start_x = node.target_pose.pose.position.x
+        node.publish_stiffness([800, 800, 300])
         node.get_logger().info(
             f"Contact detected! Force={node.current_force_z:.2f}N at Z={node.surface_z:.4f}m. Transitioning to SLIDE."
         )
@@ -186,11 +211,12 @@ class RetractState(StateBehavior):
     """Retract arm after motion is completed."""
     def on_enter(self, node: Node):
         node.get_logger().info("Slide complete. Retracting arm...")
+        node.publish_stiffness([800, 800, 800])
 
     def tick(self, node):
         node.publish_wrench(0.0)
-        node.target_pose.pose.position.z += 0.02
-        node.fsm.finish()
+        node.target_pose.pose.position.z += 0.01
+        node.fsm.trigger_reset()
 
 
 class ResetState(StateBehavior):
