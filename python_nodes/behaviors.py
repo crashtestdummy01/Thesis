@@ -34,7 +34,7 @@ class BehaviorGraph(StateChart):
             return self.fsm_ok
 
 
-        initial_id = next(iter(self.configuration), None)
+        initial_id = next(iter(self.configuration_values), None)
         if initial_id is None:
             print("FSM Validation Failed: BehaviorGraph contains no initial state.")
             return self.fsm_ok
@@ -49,9 +49,6 @@ class BehaviorGraph(StateChart):
         if state_id in self.behaviors:
             return self.behaviors[state_id]
 
-        self.node.get_logger().debug(
-            f"[FSM] No explicit behavior attached for state '{state_id}'. Using default fallback."
-        )
         return self.default_behavior
 
     def start_fsm(self):

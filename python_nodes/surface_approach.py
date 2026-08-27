@@ -23,7 +23,7 @@ class FreeContactFSM(BehaviorGraph):
     retracting = State()
     resetting = State()
     done = State(final=True)
-    stopped = State(final=False)
+    stopped = State(final=True)
 
     begin_task = init.to(align_ee)
     rotation_done = align_ee.to(approach)
@@ -52,22 +52,13 @@ class FreeContactFSM(BehaviorGraph):
         self.attach_behavior('resetting', ResetSB())
         self.attach_behavior('done', DoneSB())
 
-    def on_transition(self, event, state, target):
-        """Lifecycle hook: calls on_enter on the new handler whenever state changes."""
-        self.active_behavior = self.behaviors.get(target.id, self.behaviors['idle'])
-        self.active_behavior.on_enter(self.node)
-
-    def tick(self):
-        """Zero API queries, zero string lookups, zero deprecated properties."""
-        self.active_behavior.tick(self.node)
-
 
 class FreeContactExperimentNode(Node):
     def __init__(self):
         super().__init__('free_contact_node')
 
         # Configuration & Variables
-        self.angular_velocity = 0.1
+        self.angular_speed = 0.1
         self.approach_speed = 0.015
         self.reset_speed = 0.04
         self.contact_threshold_N = 6.5
@@ -79,7 +70,8 @@ class FreeContactExperimentNode(Node):
         self.target_pose = PoseStamped()
         self.initial_pose = PoseStamped()
         self.surface_point = np.array([0, 0, 0], dtype=float)
-        self.surface_normal = np.array([0, 0, 0, 0], dtype=float)
+        self.surface_normal = np.array([0.3536, 0.8536, -0.3536, 0.1464], dtype=float)
+        # self.surface_normal = np.array([0.3826834, 0.9238795, 0, 0], dtype=float)
 
         # ROS Setup
         self.pose_pub = self.create_publisher(PoseStamped, 'target_pose', 10)
@@ -120,6 +112,7 @@ class FreeContactExperimentNode(Node):
             self.target_pose.pose.orientation.y = y * w_o - x * z_o
             self.target_pose.pose.orientation.z = z * w_o + w * z_o
             self.target_pose.pose.orientation.w = w * w_o - z * z_o
+            print(self.target_pose.pose.orientation)
             self.current_pose_received = True
 
             self.initial_pose = deepcopy(self.target_pose)
@@ -215,7 +208,7 @@ class AlignEndEffectorSB(StateBehavior):
             node.target_pose.pose.orientation.y = float(q_target[1])
             node.target_pose.pose.orientation.z = float(q_target[2])
             node.target_pose.pose.orientation.w = float(q_target[3])
-            node.fsm.rotation_done()
+            node.fsm.abort()
             return
 
         # 5. Advance orientation by step distance (angular_speed * dt)

@@ -46,6 +46,8 @@ class SurfaceContactFSM(StateChart):
 
         self.active_behavior = self.behaviors['init']
         super().__init__()
+        print(f"{self:md}")
+        self.abort()
 
     def on_transition(self, event, state, target):
         """Lifecycle hook: calls on_enter on the new handler whenever state changes."""
