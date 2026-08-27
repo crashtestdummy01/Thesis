@@ -385,7 +385,7 @@
 
       use_friction: false
       use_coriolis_compensation: true
-      use_local_jacobian: false
+      use_local_jacobian: true
 
   torque_feedback_controller:
     ros__parameters:

@@ -16,17 +16,26 @@ class SurfaceContactFSM(StateChart):
     retracting = State()
     resetting = State()
     done = State(final=True)
+    idle = State(final=True)
 
     start_approach = init.to(approaching)
     trigger_slide = approaching.to(sliding)
     trigger_retract = sliding.to(retracting)
     trigger_reset = retracting.to(resetting)
     finish = resetting.to(done)
+    abort = (
+        init.to(idle)
+        | approaching.to(idle)
+        | sliding.to(idle)
+        | retracting.to(idle)
+        | resetting.to(idle)
+    )
 
     def __init__(self, node):
         self.node = node
 
         self.behaviors = {
+            'idle': IdleState(),
             'init': InitState(),
             'approaching': ApproachState(),
             'sliding': SlideState(),
@@ -35,13 +44,12 @@ class SurfaceContactFSM(StateChart):
             'done': DoneState(),
         }
 
-        # Track active behavior directly (starts at init)
         self.active_behavior = self.behaviors['init']
         super().__init__()
 
     def on_transition(self, event, state, target):
         """Lifecycle hook: calls on_enter on the new handler whenever state changes."""
-        self.active_behavior = self.behaviors[target.id]
+        self.active_behavior = self.behaviors.get(target.id, self.behaviors['idle'])
         self.active_behavior.on_enter(self.node)
 
     def tick(self):
@@ -59,7 +67,7 @@ class ContactExperiment(Node):
         self.reset_speed = 0.04
         self.slide_distance_x = 0.15
         self.contact_threshold_N = 6.5
-        self.target_push_force_z = -6.0
+        self.target_push_force_z = 6.0
         self.surface_offset_z = 0.01
 
         self.current_force_z = 0.0
@@ -110,6 +118,9 @@ class ContactExperiment(Node):
             self.current_pose_received = True
             
             self.initial_pose = deepcopy(self.target_pose)
+            self.get_logger().info(
+                f'Initial pose xyz -> {self.initial_pose.pose.position}'
+            )
 
     def publish_wrench(self, force_z):
         msg = WrenchStamped()
@@ -130,7 +141,6 @@ class ContactExperiment(Node):
             float(30.0),
         ]
 
-        # Uncomment this to work
         self.stiffness_pub.publish(msg)
         self.get_logger().info(
             f'Published Stiffness -> {msg.data}'
@@ -161,6 +171,11 @@ class StateBehavior:
     """Abstract base class for all state behaviors."""
     def on_enter(self, node): pass
     def tick(self, node): pass
+    
+    
+class IdleState(StateBehavior):
+    """Noop state behavior"""
+    pass
 
 
 class InitState(StateBehavior):
@@ -184,6 +199,9 @@ class ApproachState(StateBehavior):
         node.publish_wrench(0.0)
 
         if node.current_force_z >= node.contact_threshold_N:
+            node.get_logger().info(
+                f"Contact detected! Force={node.current_force_z:.2f}N at Z={node.surface_z:.4f}m. Transitioning to SLIDE."
+            )
             node.fsm.trigger_slide()
 
 
@@ -192,10 +210,7 @@ class SlideState(StateBehavior):
     def on_enter(self, node):
         node.surface_z = node.target_pose.pose.position.z
         node.slide_start_x = node.target_pose.pose.position.x
-        node.publish_stiffness([800, 800, 300])
-        node.get_logger().info(
-            f"Contact detected! Force={node.current_force_z:.2f}N at Z={node.surface_z:.4f}m. Transitioning to SLIDE."
-        )
+        node.publish_stiffness([800, 800, 400])
 
     def tick(self, node):
         node.target_pose.pose.position.z = node.surface_z + node.surface_offset_z
