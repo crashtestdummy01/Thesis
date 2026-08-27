@@ -1,83 +1,77 @@
 #!/usr/bin/env python3
 
 from copy import deepcopy
+
+import numpy as np
 import rclpy
 import math
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped, WrenchStamped
 from std_msgs.msg import Float64MultiArray
-from statemachine import StateChart, State
+from statemachine import State
+from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Slerp
+
+from behaviors import StateBehavior, BehaviorGraph
 
 
-class SurfaceContactFSM(StateChart):
+class FreeContactFSM(BehaviorGraph):
     init = State(initial=True)
-    approaching = State()
-    sliding = State()
+    align_ee = State()
+    approach = State()
+    contact = State()
     retracting = State()
     resetting = State()
     done = State(final=True)
-    idle = State(final=True)
+    stopped = State(final=True)
 
-    start_approach = init.to(approaching)
-    trigger_slide = approaching.to(sliding)
-    trigger_retract = sliding.to(retracting)
-    trigger_reset = retracting.to(resetting)
+    begin_task = init.to(align_ee)
+    rotation_done = align_ee.to(approach)
+    contact_detected = approach.to(contact)
+    trigger_retracting = contact.to(retracting)
+    cleanup = retracting.to(resetting)
     finish = resetting.to(done)
     abort = (
-        init.to(idle)
-        | approaching.to(idle)
-        | sliding.to(idle)
-        | retracting.to(idle)
-        | resetting.to(idle)
+            init.to(stopped)
+            | align_ee.to(stopped)
+            | approach.to(stopped)
+            | contact.to(stopped)
+            | retracting.to(stopped)
+            | resetting.to(stopped)
     )
 
     def __init__(self, node):
+        super().__init__(node)
         self.node = node
 
-        self.behaviors = {
-            'idle': IdleState(),
-            'init': InitState(),
-            'approaching': ApproachState(),
-            'sliding': SlideState(),
-            'retracting': RetractState(),
-            'resetting': ResetState(),
-            'done': DoneState(),
-        }
-
-        self.active_behavior = self.behaviors['init']
-        super().__init__()
-        print(f"{self:md}")
-        self.abort()
-
-    def on_transition(self, event, state, target):
-        """Lifecycle hook: calls on_enter on the new handler whenever state changes."""
-        self.active_behavior = self.behaviors.get(target.id, self.behaviors['idle'])
-        self.active_behavior.on_enter(self.node)
-
-    def tick(self):
-        """Zero API queries, zero string lookups, zero deprecated properties."""
-        self.active_behavior.tick(self.node)
+        self.attach_behavior('init', InitSB())
+        self.attach_behavior('align_ee', AlignEndEffectorSB())
+        self.attach_behavior('approach', ApproachSB())
+        self.attach_behavior('contact', ContactSB())
+        self.attach_behavior('retracting', RetractSB())
+        self.attach_behavior('resetting', ResetSB())
+        self.attach_behavior('done', DoneSB())
 
 
-class ContactExperiment(Node):
+class FreeContactExperimentNode(Node):
     def __init__(self):
-        super().__init__('surface_contact_node')
+        super().__init__('free_contact_node')
 
         # Configuration & Variables
-        self.approach_speed_z = 0.015
-        self.slide_speed_x = 0.01
+        self.angular_speed = 0.1
+        self.approach_speed = 0.015
         self.reset_speed = 0.04
-        self.slide_distance_x = 0.15
         self.contact_threshold_N = 6.5
         self.target_push_force_z = 6.0
-        self.surface_offset_z = 0.01
+        self.surface_offset = 0.01
 
         self.current_force_z = 0.0
         self.current_pose_received = False
         self.target_pose = PoseStamped()
         self.initial_pose = PoseStamped()
-        self.surface_z = 0.0
-        self.slide_start_x = 0.0
+        self.surface_point = np.array([0, 0, 0], dtype=float)
+        self.surface_normal = np.array([0.3536, 0.8536, -0.3536, 0.1464], dtype=float)
+        # self.surface_normal = np.array([0.3826834, 0.9238795, 0, 0], dtype=float)
 
         # ROS Setup
         self.pose_pub = self.create_publisher(PoseStamped, 'target_pose', 10)
@@ -91,9 +85,10 @@ class ContactExperiment(Node):
             PoseStamped, '/franka_robot_state_broadcaster/current_pose', self.current_pose_callback, 10
         )
 
-
         # Attach State Coordinator
-        self.fsm = SurfaceContactFSM(node=self)
+        self.fsm = FreeContactFSM(node=self)
+        self.fsm.validate()
+        self.fsm.start_fsm()
 
         self.dt = 0.05  # 20 Hz
         self.timer = self.create_timer(self.dt, self.control_loop)
@@ -117,8 +112,9 @@ class ContactExperiment(Node):
             self.target_pose.pose.orientation.y = y * w_o - x * z_o
             self.target_pose.pose.orientation.z = z * w_o + w * z_o
             self.target_pose.pose.orientation.w = w * w_o - z * z_o
+            print(self.target_pose.pose.orientation)
             self.current_pose_received = True
-            
+
             self.initial_pose = deepcopy(self.target_pose)
             self.get_logger().info(
                 f'Initial pose xyz -> {self.initial_pose.pose.position}'
@@ -130,7 +126,7 @@ class ContactExperiment(Node):
         msg.header.frame_id = 'hand'
         msg.wrench.force.z = force_z
         self.wrench_pub.publish(msg)
-        
+
     def publish_stiffness(self, k_trans):
         msg = Float64MultiArray()
 
@@ -158,7 +154,7 @@ class ContactExperiment(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = ContactExperiment()
+    node = FreeContactExperimentNode()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
@@ -169,65 +165,101 @@ def main(args=None):
             rclpy.shutdown()
 
 
-class StateBehavior:
-    """Abstract base class for all state behaviors."""
-    def on_enter(self, node): pass
-    def tick(self, node): pass
-    
-    
-class IdleState(StateBehavior):
-    """Noop state behavior"""
-    pass
-
-
-class InitState(StateBehavior):
+class InitSB(StateBehavior):
     """Initial state. Capture start state."""
+
     def tick(self, node):
         if node.current_pose_received:
-            node.fsm.start_approach()
+            node.fsm.begin_task()
         else:
             node.get_logger().info_throttle_monotonic(
                 node, 2000, "Waiting for initial pose from state broadcaster..."
             )
 
 
-class ApproachState(StateBehavior):
-    """Command the arm to slowly approach the surface. Contact is triggered by force spike along the contact normal."""
+class AlignEndEffectorSB(StateBehavior):
+    """Align end effector local z-axis with contact normal using step-wise error tracking."""
+
     def on_enter(self, node):
-        node.get_logger().info("Starting surface approach...")
+        node.get_logger().info("Aligning end effector orientation...")
 
     def tick(self, node):
-        node.target_pose.pose.position.z -= node.approach_speed_z * node.dt
-        node.publish_wrench(0.0)
+        epsilon = 0.005  # ~0.3 degrees threshold
+        # 1. Current target pose orientation in SciPy format [x, y, z, w]
+        o_curr = node.target_pose.pose.orientation
+        q_curr = np.array([o_curr.x, o_curr.y, o_curr.z, o_curr.w])
 
-        if node.current_force_z >= node.contact_threshold_N:
-            node.get_logger().info(
-                f"Contact detected! Force={node.current_force_z:.2f}N at Z={node.surface_z:.4f}m. Transitioning to SLIDE."
-            )
-            node.fsm.trigger_slide()
+        # 2. Extract target quaternion from node.surface_normal array [w, x, y, z] -> [x, y, z, w]
+        sn = node.surface_normal
+        q_target = np.array([sn[1], sn[2], sn[3], sn[0]])
+
+        # Maintain shortest arc rotation across antipodal quats
+        if np.dot(q_curr, q_target) < 0:
+            q_target = -q_target
+
+        # 3. Compute remaining angular distance (radians)
+        dot_prod = np.clip(abs(np.dot(q_curr, q_target)), -1.0, 1.0)
+        angle_error = 2.0 * np.arccos(dot_prod)
+
+        # 4. Check convergence condition
+        if angle_error <= epsilon:
+            # Snap exactly to target orientation
+            node.target_pose.pose.orientation.x = float(q_target[0])
+            node.target_pose.pose.orientation.y = float(q_target[1])
+            node.target_pose.pose.orientation.z = float(q_target[2])
+            node.target_pose.pose.orientation.w = float(q_target[3])
+            node.fsm.abort()
+            return
+
+        # 5. Advance orientation by step distance (angular_speed * dt)
+        step_angle = node.angular_speed * node.dt
+        ratio = min(step_angle / angle_error, 1.0)
+
+        times = [0.0, 1.0]
+        rotations = R.from_quat([q_curr, q_target])
+        slerp = Slerp(times, rotations)
+        q_next = slerp(ratio).as_quat()
+
+        # Update pose target
+        node.target_pose.pose.orientation.x = float(q_next[0])
+        node.target_pose.pose.orientation.y = float(q_next[1])
+        node.target_pose.pose.orientation.z = float(q_next[2])
+        node.target_pose.pose.orientation.w = float(q_next[3])
+
+    def on_leave(self, node):
+        node.get_logger().info("Orientation alignment complete.")
 
 
-class SlideState(StateBehavior):
-    """Move the arm while maintaining contact."""
+class ApproachSB(StateBehavior):
+    """Move the arm along the contact normal until contact is detected.
+     Contact happens when the estimated force along the contact normal exceeds the specified threshold"""
+
     def on_enter(self, node):
-        node.surface_z = node.target_pose.pose.position.z
-        node.slide_start_x = node.target_pose.pose.position.x
+        node.get_logger().info("Moving towards surface...")
+
+    def tick(self, node):
+        ...
+
+    def on_leave(self, node):
+        node.get_logger().info(
+            f"Contact detected! Force={node.current_force_z:.2f}N at Z={node.surface_z:.4f}m."
+        )
+
+
+class ContactSB(StateBehavior):
+    """Maintain contact with given force until user input"""
+
+    def on_enter(self, node):
+        node.surface = node.target_pose.pose.position
         node.publish_stiffness([800, 800, 400])
 
     def tick(self, node):
-        node.target_pose.pose.position.z = node.surface_z + node.surface_offset_z
-        node.target_pose.pose.position.x += node.slide_speed_x * node.dt
-        node.publish_wrench(node.target_push_force_z)
+        ...
 
-        traveled = node.target_pose.pose.position.x - node.slide_start_x
-        if traveled >= node.slide_distance_x:
-            node.fsm.trigger_retract()
-
-
-class RetractState(StateBehavior):
+class RetractSB(StateBehavior):
     """Retract arm after motion is completed."""
     def on_enter(self, node: Node):
-        node.get_logger().info("Slide complete. Retracting arm...")
+        node.get_logger().info("Task complete. Retracting arm...")
         node.publish_stiffness([800, 800, 800])
 
     def tick(self, node):
@@ -235,9 +267,9 @@ class RetractState(StateBehavior):
         node.target_pose.pose.position.z += 0.01
         node.fsm.trigger_reset()
 
-
-class ResetState(StateBehavior):
+class ResetSB(StateBehavior):
     """Slowly linearly interpolate target_pose back to initial_pose."""
+
     def on_enter(self, node: Node):
         node.get_logger().info("Resetting arm back to initial pose...")
 
@@ -266,8 +298,9 @@ class ResetState(StateBehavior):
             node.target_pose.pose.position.z += dz * ratio
 
 
-class DoneState(StateBehavior):
+class DoneSB(StateBehavior):
     """Cleanup after experiment."""
+
     def on_enter(self, node: Node):
         node.get_logger().info("Finished operation successfully.")
 

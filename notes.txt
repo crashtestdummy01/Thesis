@@ -1,0 +1,1 @@
+Setting rotation to 135, 0, 45 (euler) and re-running creates sudden jerks
