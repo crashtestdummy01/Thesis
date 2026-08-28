@@ -65,7 +65,7 @@ class FreeContactExperimentNode(Node):
         self.target_push_force_z = 6.0
         self.surface_offset = 0.01
 
-        self.current_force_z = 0.0
+        self.current_force = WrenchStamped().wrench.force
         self.current_pose_received = False
         self.target_pose = PoseStamped()
         self.initial_pose = PoseStamped()
@@ -94,7 +94,7 @@ class FreeContactExperimentNode(Node):
         self.timer = self.create_timer(self.dt, self.control_loop)
 
     def force_callback(self, msg: WrenchStamped):
-        self.current_force_z = abs(msg.wrench.force.z)
+        self.current_force = msg.wrench.force
 
     def current_pose_callback(self, msg: PoseStamped):
         # Capture initial pose once at startup
@@ -231,18 +231,43 @@ class AlignEndEffectorSB(StateBehavior):
 
 
 class ApproachSB(StateBehavior):
-    """Move the arm along the contact normal until contact is detected.
-     Contact happens when the estimated force along the contact normal exceeds the specified threshold"""
+    """Move the arm along the local Z-axis of the end effector until contact is detected."""
 
     def on_enter(self, node):
         node.get_logger().info("Moving towards surface...")
 
     def tick(self, node):
-        ...
+        # 1. Maintain zero wrench during approach
+        node.publish_wrench(0.0)
+
+        # 2. Extract current orientation quaternion [x, y, z, w]
+        o = node.target_pose.pose.orientation
+        q_curr = [o.x, o.y, o.z, o.w]
+
+        # 3. Transform local +Z direction vector [0, 0, 1] into world coordinates
+        rot = R.from_quat(q_curr)
+        local_z_in_world = rot.apply([0.0, 0.0, 1.0])
+
+        # 4. Advance target position along transformed local Z vector
+        step = node.approach_speed * node.dt
+        node.target_pose.pose.position.x += float(local_z_in_world[0] * step)
+        node.target_pose.pose.position.y += float(local_z_in_world[1] * step)
+        node.target_pose.pose.position.z += float(local_z_in_world[2] * step)
+
+        # 5. Check contact condition
+        if node.current_force_z >= node.contact_threshold_N:
+            # Store contact location
+            node.surface_point = np.array([
+                node.target_pose.pose.position.x,
+                node.target_pose.pose.position.y,
+                node.target_pose.pose.position.z,
+            ], dtype=float)
+
+            node.fsm.contact_detected()
 
     def on_leave(self, node):
         node.get_logger().info(
-            f"Contact detected! Force={node.current_force_z:.2f}N at Z={node.surface_z:.4f}m."
+            f"Contact detected! Force={node.current_force_z:.2f}N at Z={node.target_pose.pose.position.z:.4f}m."
         )
 
 
