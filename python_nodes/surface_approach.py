@@ -60,7 +60,7 @@ class FreeContactExperimentNode(Node):
         # Configuration & Variables
         self.angular_speed = 0.1
         self.approach_speed = 0.015
-        self.reset_speed = 0.04
+        self.reset_speed = 0.02
         self.contact_threshold_N = 6.5
         self.target_push_force_z = 6.0
         self.surface_offset = 0.01
@@ -72,7 +72,7 @@ class FreeContactExperimentNode(Node):
         self.initial_pose = PoseStamped()
         self.surface_point = np.array([0, 0, 0], dtype=float)
         #self.surface_normal = np.array([0.3536, 0.8536, -0.3536, 0.1464], dtype=float)
-        self.surface_normal = np.array([0.9238795, -0.3826834, 0, 0], dtype=float)
+        self.surface_normal = np.array([1, 0, 0, 0], dtype=float)
   
         # ROS Setup
         self.pose_pub = self.create_publisher(PoseStamped, 'target_pose', 10)
@@ -99,34 +99,15 @@ class FreeContactExperimentNode(Node):
 
     def current_pose_callback(self, msg: PoseStamped):
         # Capture initial pose once at startup
-        self.target_pose = deepcopy(msg)
+        if not self.current_pose_received:
+            self.target_pose = deepcopy(msg)
 
-        # 1. Extract measured orientation
-        x, y = msg.pose.orientation.x, msg.pose.orientation.y
-        z, w = msg.pose.orientation.z, msg.pose.orientation.w
-        q_measured = [x, y, z, w]
-
-        # 2. Rotate local tool offset vector [0, 0, 0.109175] into world coordinates
-        rot_curr = R.from_quat(q_measured)
-        tool_offset_world = rot_curr.apply([0.0, 0.0, 0.109175])
-
-        # 3. Add transformed offset to position
-        self.target_pose.pose.position.x += float(tool_offset_world[0])
-        self.target_pose.pose.position.y += float(tool_offset_world[1])
-        self.target_pose.pose.position.z += float(tool_offset_world[2])
-
-        # 4. Compensate orientation offset
-        w_o, z_o = 0.9238795, 0.3826834
-        self.target_pose.pose.orientation.x = x * w_o + y * z_o
-        self.target_pose.pose.orientation.y = y * w_o - x * z_o
-        self.target_pose.pose.orientation.z = z * w_o + w * z_o
-        self.target_pose.pose.orientation.w = w * w_o - z * z_o
-
-        self.current_pose_received = True
-        self.initial_pose = deepcopy(self.target_pose)
-        self.get_logger().info(
-            f'Initial pose xyz -> {self.initial_pose.pose.position}'
-        )
+            self.current_pose_received = True
+            
+            self.initial_pose = deepcopy(self.target_pose)
+            self.get_logger().info(
+                f'Initial pose -> {self.initial_pose.pose}'
+            )
 
     def publish_wrench(self, force_z):
         msg = WrenchStamped()
@@ -158,6 +139,7 @@ class FreeContactExperimentNode(Node):
         # 2. Publish pose target
         self.target_pose.header.stamp = self.get_clock().now().to_msg()
         self.pose_pub.publish(self.target_pose)
+        
 
 
 def main(args=None):
@@ -305,12 +287,16 @@ class ContactSB(StateBehavior):
         if self.elapsed_time >= node.hold_time:
             node.fsm.trigger_retracting()
 
+    def on_leave(self, node):
+        node.publish_wrench(0.0)
+
 
 class RetractSB(StateBehavior):
     """Retract arm away from the surface along local -Z."""
 
     def on_enter(self, node):
         node.get_logger().info("Task complete. Retracting arm...")
+        node.publish_wrench(0.0)
         node.publish_stiffness([800, 800, 800])
 
     def tick(self, node):
@@ -323,6 +309,16 @@ class RetractSB(StateBehavior):
 
         # Retract 10mm (0.01m) away from surface
         retract_dist = 0.01
+
+        delta = retract_dist * local_z_in_world
+        delta_norm = np.linalg.norm(delta)
+
+        if delta_norm > 0.02 and delta_norm > 0:
+            delta = (delta / delta_norm) * 0.02
+
+        print(f"Computed values: d = {delta} | |d| = {delta_norm}")
+        print(f"Retract distance = {local_z_in_world * retract_dist}")
+
         node.target_pose.pose.position.x -= float(local_z_in_world[0] * retract_dist)
         node.target_pose.pose.position.y -= float(local_z_in_world[1] * retract_dist)
         node.target_pose.pose.position.z -= float(local_z_in_world[2] * retract_dist)
@@ -409,7 +405,7 @@ class DoneSB(StateBehavior):
         node.get_logger().info("Finished operation successfully.")
 
     def tick(self, node):
-        node.publish_wrench(0.0)
+        pass
 
 
 if __name__ == '__main__':

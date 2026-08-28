@@ -360,7 +360,7 @@
         - fr3_joint6
         - fr3_joint7
 
-      end_effector_frame: fr3_link8
+      end_effector_frame: fr3_hand_tcp
       base_frame: base
 
       filter:
