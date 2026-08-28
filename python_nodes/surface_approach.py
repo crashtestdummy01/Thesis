@@ -64,6 +64,7 @@ class FreeContactExperimentNode(Node):
         self.contact_threshold_N = 6.5
         self.target_push_force_z = 6.0
         self.surface_offset = 0.01
+        self.hold_time = 2.0
 
         self.current_force = WrenchStamped().wrench.force
         self.current_pose_received = False
@@ -271,55 +272,127 @@ class ApproachSB(StateBehavior):
 
 
 class ContactSB(StateBehavior):
-    """Maintain contact with given force until user input"""
+    """Maintain contact with target force for 2 seconds with a 5mm position offset."""
+
+    def __init__(self):
+        super().__init__()
+        self.elapsed_time = 0.0
 
     def on_enter(self, node):
-        node.surface = node.target_pose.pose.position
+        node.get_logger().info("Maintaining contact...")
         node.publish_stiffness([800, 800, 400])
 
+        o = node.target_pose.pose.orientation
+        rot = R.from_quat([o.x, o.y, o.z, o.w])
+        local_z_in_world = rot.apply([0.0, 0.0, 1.0])
+
+        offset = 0.005
+        node.target_pose.pose.position.x -= float(local_z_in_world[0] * offset)
+        node.target_pose.pose.position.y -= float(local_z_in_world[1] * offset)
+        node.target_pose.pose.position.z -= float(local_z_in_world[2] * offset)
+
     def tick(self, node):
-        ...
+        node.publish_wrench(node.target_push_force_z)
+
+        self.elapsed_time += node.dt
+        if self.elapsed_time >= node.hold_time:
+            node.fsm.trigger_retracting()
+
 
 class RetractSB(StateBehavior):
-    """Retract arm after motion is completed."""
-    def on_enter(self, node: Node):
+    """Retract arm away from the surface along local -Z."""
+
+    def on_enter(self, node):
         node.get_logger().info("Task complete. Retracting arm...")
         node.publish_stiffness([800, 800, 800])
 
     def tick(self, node):
         node.publish_wrench(0.0)
-        node.target_pose.pose.position.z += 0.01
-        node.fsm.trigger_reset()
+
+        # Compute local +Z vector
+        o = node.target_pose.pose.orientation
+        rot = R.from_quat([o.x, o.y, o.z, o.w])
+        local_z_in_world = rot.apply([0.0, 0.0, 1.0])
+
+        # Retract 10mm (0.01m) away from surface
+        retract_dist = 0.01
+        node.target_pose.pose.position.x -= float(local_z_in_world[0] * retract_dist)
+        node.target_pose.pose.position.y -= float(local_z_in_world[1] * retract_dist)
+        node.target_pose.pose.position.z -= float(local_z_in_world[2] * retract_dist)
+
+        # Transition to resetting state using FSM event trigger name
+        node.fsm.cleanup()
+
 
 class ResetSB(StateBehavior):
-    """Slowly linearly interpolate target_pose back to initial_pose."""
+    """Linearly interpolates position and SLERP interpolates orientation back to initial_pose."""
 
-    def on_enter(self, node: Node):
-        node.get_logger().info("Resetting arm back to initial pose...")
+    def on_enter(self, node):
+        node.get_logger().info("Resetting arm back to initial pose and orientation...")
 
     def tick(self, node):
         node.publish_wrench(0.0)
 
+        # --- 1. Position Interpolation ---
         curr_p = node.target_pose.pose.position
         init_p = node.initial_pose.pose.position
 
         dx = init_p.x - curr_p.x
         dy = init_p.y - curr_p.y
         dz = init_p.z - curr_p.z
-        distance = math.sqrt(dx * dx + dy * dy + dz * dz)
+        dist_pos = math.sqrt(dx * dx + dy * dy + dz * dz)
 
-        step_dist = node.reset_speed * node.dt
+        step_pos = node.reset_speed * node.dt
+        pos_done = False
 
-        if distance <= step_dist:
-            node.target_pose.pose.position.x = init_p.x
-            node.target_pose.pose.position.y = init_p.y
-            node.target_pose.pose.position.z = init_p.z
-            node.fsm.finish()
+        if dist_pos <= step_pos:
+            curr_p.x = init_p.x
+            curr_p.y = init_p.y
+            curr_p.z = init_p.z
+            pos_done = True
         else:
-            ratio = step_dist / distance
-            node.target_pose.pose.position.x += dx * ratio
-            node.target_pose.pose.position.y += dy * ratio
-            node.target_pose.pose.position.z += dz * ratio
+            ratio_pos = step_pos / dist_pos
+            curr_p.x += dx * ratio_pos
+            curr_p.y += dy * ratio_pos
+            curr_p.z += dz * ratio_pos
+
+        # --- 2. Orientation Interpolation ---
+        o_curr = node.target_pose.pose.orientation
+        o_init = node.initial_pose.pose.orientation
+
+        q_curr = np.array([o_curr.x, o_curr.y, o_curr.z, o_curr.w])
+        q_init = np.array([o_init.x, o_init.y, o_init.z, o_init.w])
+
+        # Shortest path handling across antipodal quaternions
+        if np.dot(q_curr, q_init) < 0:
+            q_init = -q_init
+
+        dot_prod = np.clip(abs(np.dot(q_curr, q_init)), -1.0, 1.0)
+        angle_error = 2.0 * np.arccos(dot_prod)
+
+        ang_speed = node.angular_speed
+        step_rot = ang_speed * node.dt
+        rot_done = False
+
+        if angle_error <= step_rot or math.isclose(angle_error, 0.0, abs_tol=1e-5):
+            o_curr.x = float(q_init[0])
+            o_curr.y = float(q_init[1])
+            o_curr.z = float(q_init[2])
+            o_curr.w = float(q_init[3])
+            rot_done = True
+        else:
+            ratio_rot = min(step_rot / angle_error, 1.0)
+            slerp = Slerp([0.0, 1.0], R.from_quat([q_curr, q_init]))
+            q_next = slerp(ratio_rot).as_quat()
+
+            o_curr.x = float(q_next[0])
+            o_curr.y = float(q_next[1])
+            o_curr.z = float(q_next[2])
+            o_curr.w = float(q_next[3])
+
+        # --- 3. Completion Check ---
+        if pos_done and rot_done:
+            node.fsm.finish()
 
 
 class DoneSB(StateBehavior):
