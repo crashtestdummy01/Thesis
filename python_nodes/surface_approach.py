@@ -99,27 +99,34 @@ class FreeContactExperimentNode(Node):
 
     def current_pose_callback(self, msg: PoseStamped):
         # Capture initial pose once at startup
-        if not self.current_pose_received:
-            self.target_pose = deepcopy(msg)
+        self.target_pose = deepcopy(msg)
 
-            # Compensate for physical ee offsets
-            self.target_pose.pose.position.z += 0.109175
-            w_o, z_o = 0.9238795, 0.3826834
+        # 1. Extract measured orientation
+        x, y = msg.pose.orientation.x, msg.pose.orientation.y
+        z, w = msg.pose.orientation.z, msg.pose.orientation.w
+        q_measured = [x, y, z, w]
 
-            x, y = msg.pose.orientation.x, msg.pose.orientation.y
-            z, w = msg.pose.orientation.z, msg.pose.orientation.w
+        # 2. Rotate local tool offset vector [0, 0, 0.109175] into world coordinates
+        rot_curr = R.from_quat(q_measured)
+        tool_offset_world = rot_curr.apply([0.0, 0.0, 0.109175])
 
-            self.target_pose.pose.orientation.x = x * w_o + y * z_o
-            self.target_pose.pose.orientation.y = y * w_o - x * z_o
-            self.target_pose.pose.orientation.z = z * w_o + w * z_o
-            self.target_pose.pose.orientation.w = w * w_o - z * z_o
-            print(self.target_pose.pose.orientation)
-            self.current_pose_received = True
+        # 3. Add transformed offset to position
+        self.target_pose.pose.position.x += float(tool_offset_world[0])
+        self.target_pose.pose.position.y += float(tool_offset_world[1])
+        self.target_pose.pose.position.z += float(tool_offset_world[2])
 
-            self.initial_pose = deepcopy(self.target_pose)
-            self.get_logger().info(
-                f'Initial pose xyz -> {self.initial_pose.pose.position}'
-            )
+        # 4. Compensate orientation offset
+        w_o, z_o = 0.9238795, 0.3826834
+        self.target_pose.pose.orientation.x = x * w_o + y * z_o
+        self.target_pose.pose.orientation.y = y * w_o - x * z_o
+        self.target_pose.pose.orientation.z = z * w_o + w * z_o
+        self.target_pose.pose.orientation.w = w * w_o - z * z_o
+
+        self.current_pose_received = True
+        self.initial_pose = deepcopy(self.target_pose)
+        self.get_logger().info(
+            f'Initial pose xyz -> {self.initial_pose.pose.position}'
+        )
 
     def publish_wrench(self, force_z):
         msg = WrenchStamped()
