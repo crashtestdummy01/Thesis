@@ -70,9 +70,9 @@ class FreeContactExperimentNode(Node):
         self.target_pose = PoseStamped()
         self.initial_pose = PoseStamped()
         self.surface_point = np.array([0, 0, 0], dtype=float)
-        self.surface_normal = np.array([0.3536, 0.8536, -0.3536, 0.1464], dtype=float)
-        # self.surface_normal = np.array([0.3826834, 0.9238795, 0, 0], dtype=float)
-
+        #self.surface_normal = np.array([0.3536, 0.8536, -0.3536, 0.1464], dtype=float)
+        self.surface_normal = np.array([0.9238795, -0.3826834, 0, 0], dtype=float)
+  
         # ROS Setup
         self.pose_pub = self.create_publisher(PoseStamped, 'target_pose', 10)
         self.wrench_pub = self.create_publisher(WrenchStamped, 'target_wrench', 10)
@@ -190,8 +190,7 @@ class AlignEndEffectorSB(StateBehavior):
         q_curr = np.array([o_curr.x, o_curr.y, o_curr.z, o_curr.w])
 
         # 2. Extract target quaternion from node.surface_normal array [w, x, y, z] -> [x, y, z, w]
-        sn = node.surface_normal
-        q_target = np.array([sn[1], sn[2], sn[3], sn[0]])
+        q_target = node.surface_normal
 
         # Maintain shortest arc rotation across antipodal quats
         if np.dot(q_curr, q_target) < 0:
@@ -208,7 +207,7 @@ class AlignEndEffectorSB(StateBehavior):
             node.target_pose.pose.orientation.y = float(q_target[1])
             node.target_pose.pose.orientation.z = float(q_target[2])
             node.target_pose.pose.orientation.w = float(q_target[3])
-            node.fsm.abort()
+            node.fsm.rotation_done()
             return
 
         # 5. Advance orientation by step distance (angular_speed * dt)
@@ -255,7 +254,7 @@ class ApproachSB(StateBehavior):
         node.target_pose.pose.position.z += float(local_z_in_world[2] * step)
 
         # 5. Check contact condition
-        if node.current_force_z >= node.contact_threshold_N:
+        if node.current_force.z >= node.contact_threshold_N:
             # Store contact location
             node.surface_point = np.array([
                 node.target_pose.pose.position.x,
@@ -267,7 +266,7 @@ class ApproachSB(StateBehavior):
 
     def on_leave(self, node):
         node.get_logger().info(
-            f"Contact detected! Force={node.current_force_z:.2f}N at Z={node.target_pose.pose.position.z:.4f}m."
+            f"Contact detected! Force={node.current_force.z:.2f}N at Z={node.target_pose.pose.position.z:.4f}m."
         )
 
 

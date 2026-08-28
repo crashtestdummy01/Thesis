@@ -12,4 +12,4 @@ ROBOT1:
   namespace: ""
   robot_ip: "10.90.90.143"
   use_fake_hardware: "false"
-  use_rviz: "true"
+  use_rviz: "false"

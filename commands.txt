@@ -1,4 +1,5 @@
 ros2 action send_goal -f /franka_gripper/grasp franka_msgs/action/Grasp "{ width: 0.0, speed: 0.03, force: 5.0, epsilon: {inner: 0.0, outer: 0.08} }"
 ros2 action send_goal -f /franka_gripper/move franka_msgs/action/Move "{width: 0.01, speed: 0.03}"
 ros2 control switch_controllers --deactivate joint_impedance_controller --activate cartesian_impedance_controller
+pixi run -e humble ros2 launch scripts/launch/main.launch.py
 
