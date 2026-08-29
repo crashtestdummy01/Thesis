@@ -54,6 +54,8 @@ def plot_force():
 
 	# 1. Load raw CSV data
 	df = pd.read_csv(CSV_FILE)
+	
+	df['force_mag'] = np.sqrt(df['force_x']**2 + df['force_y']**2 + df['force_z']**2)
 
 	fig = go.Figure()
 
@@ -61,7 +63,7 @@ def plot_force():
 	fig.add_trace(
 	    go.Scatter(
 		x=df['time_s'],
-		y=df['force_z'],
+		y=df['force_mag'],
 		mode='lines',
 		name=f'Force (N))',
 		line=dict(color='royalblue', width=2)

@@ -106,22 +106,11 @@ class ContactExperiment(Node):
         if not self.current_pose_received:
             self.target_pose = deepcopy(msg)
 
-            # Compensate for physical ee offsets
-            self.target_pose.pose.position.z += 0.109175
-            w_o, z_o = 0.9238795, 0.3826834
-
-            x, y = msg.pose.orientation.x, msg.pose.orientation.y
-            z, w = msg.pose.orientation.z, msg.pose.orientation.w
-
-            self.target_pose.pose.orientation.x = x * w_o + y * z_o
-            self.target_pose.pose.orientation.y = y * w_o - x * z_o
-            self.target_pose.pose.orientation.z = z * w_o + w * z_o
-            self.target_pose.pose.orientation.w = w * w_o - z * z_o
             self.current_pose_received = True
             
             self.initial_pose = deepcopy(self.target_pose)
             self.get_logger().info(
-                f'Initial pose xyz -> {self.initial_pose.pose.position}'
+                f'Initial pose -> {self.initial_pose.pose}'
             )
 
     def publish_wrench(self, force_z):

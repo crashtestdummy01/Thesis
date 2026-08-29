@@ -60,7 +60,7 @@ class FreeContactExperimentNode(Node):
         # Configuration & Variables
         self.angular_speed = 0.1
         self.approach_speed = 0.015
-        self.reset_speed = 0.02
+        self.reset_speed = 0.04
         self.contact_threshold_N = 6.5
         self.target_push_force_z = 6.0
         self.surface_offset = 0.01
@@ -72,7 +72,8 @@ class FreeContactExperimentNode(Node):
         self.initial_pose = PoseStamped()
         self.surface_point = np.array([0, 0, 0], dtype=float)
         #self.surface_normal = np.array([0.3536, 0.8536, -0.3536, 0.1464], dtype=float)
-        self.surface_normal = np.array([1, 0, 0, 0], dtype=float)
+        #self.surface_normal = np.array([-0.976296, 0, -0.2164396, 0], dtype=float)
+        self.surface_normal = np.array([-0.7071068, 0, 0, 0.7071068], dtype=float)
   
         # ROS Setup
         self.pose_pub = self.create_publisher(PoseStamped, 'target_pose', 10)
@@ -275,7 +276,7 @@ class ContactSB(StateBehavior):
         rot = R.from_quat([o.x, o.y, o.z, o.w])
         local_z_in_world = rot.apply([0.0, 0.0, 1.0])
 
-        offset = 0.005
+        offset = node.surface_offset
         node.target_pose.pose.position.x -= float(local_z_in_world[0] * offset)
         node.target_pose.pose.position.y -= float(local_z_in_world[1] * offset)
         node.target_pose.pose.position.z -= float(local_z_in_world[2] * offset)
@@ -334,6 +335,8 @@ class ResetSB(StateBehavior):
         node.get_logger().info("Resetting arm back to initial pose and orientation...")
 
     def tick(self, node):
+        epsilon = 0.005
+
         node.publish_wrench(0.0)
 
         # --- 1. Position Interpolation ---
@@ -377,7 +380,7 @@ class ResetSB(StateBehavior):
         step_rot = ang_speed * node.dt
         rot_done = False
 
-        if angle_error <= step_rot or math.isclose(angle_error, 0.0, abs_tol=1e-5):
+        if angle_error <= epsilon:
             o_curr.x = float(q_init[0])
             o_curr.y = float(q_init[1])
             o_curr.z = float(q_init[2])
