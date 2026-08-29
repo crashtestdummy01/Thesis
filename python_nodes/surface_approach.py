@@ -369,6 +369,13 @@ class ResetSB(StateBehavior):
         q_curr = np.array([o_curr.x, o_curr.y, o_curr.z, o_curr.w])
         q_init = np.array([o_init.x, o_init.y, o_init.z, o_init.w])
 
+        norm_c = np.linalg.norm(q_curr)
+        norm_i = np.linalg.norm(q_init)
+        if norm_c > 0:
+            q_curr /= norm_c
+        if norm_i > 0:
+            q_init /= norm_i
+
         # Shortest path handling across antipodal quaternions
         if np.dot(q_curr, q_init) < 0:
             q_init = -q_init
