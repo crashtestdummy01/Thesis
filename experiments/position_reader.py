@@ -9,7 +9,7 @@ class ForceListener(Node):
 
         self.subscription = self.create_subscription(
             PoseStamped,
-            '/franka_robot_state_broadcaster/current_pose',
+            '/current_pose',
             self.pose_callback,
             10
         )

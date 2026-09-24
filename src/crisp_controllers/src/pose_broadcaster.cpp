@@ -178,6 +178,7 @@ CallbackReturn PoseBroadcaster::on_configure(const rclcpp_lifecycle::State & /*p
       return CallbackReturn::ERROR;
     }
   }
+  
 
   end_effector_frame_id = model_.getFrameId(params_.end_effector_frame);
   q = Eigen::VectorXd::Zero(model_.nv);

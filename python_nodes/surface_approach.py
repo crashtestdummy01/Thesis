@@ -61,10 +61,11 @@ class FreeContactExperimentNode(Node):
         self.angular_speed = 0.1
         self.approach_speed = 0.015
         self.reset_speed = 0.04
-        self.contact_threshold_N = 6.5
-        self.target_push_force_z = 6.0
+        self.contact_threshold_N = 1.5
+        self.target_push_force_z = 2.5
         self.surface_offset = 0.01
-        self.hold_time = 2.0
+        self.hold_time = 20.0
+        self.translation_speed = 0.01
 
         self.current_force = WrenchStamped().wrench.force
         self.current_pose_received = False
@@ -84,7 +85,7 @@ class FreeContactExperimentNode(Node):
             WrenchStamped, '/cartesian_impedance_controller/measured_force', self.force_callback, 10
         )
         self.pose_sub = self.create_subscription(
-            PoseStamped, '/franka_robot_state_broadcaster/current_pose', self.current_pose_callback, 10
+            PoseStamped, '/current_pose', self.current_pose_callback, 10
         )
 
         # Attach State Coordinator
@@ -140,6 +141,13 @@ class FreeContactExperimentNode(Node):
         # 2. Publish pose target
         self.target_pose.header.stamp = self.get_clock().now().to_msg()
         self.pose_pub.publish(self.target_pose)
+
+    def cleanup_and_shutdown(self):
+        self.get_logger().info("Experiment complete. Shutting down...")
+        if self.timer:
+            self.timer.cancel()
+
+        raise SystemExit
         
 
 
@@ -148,7 +156,7 @@ def main(args=None):
     node = FreeContactExperimentNode()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
         pass
     finally:
         node.destroy_node()
@@ -198,6 +206,7 @@ class AlignEndEffectorSB(StateBehavior):
             node.target_pose.pose.orientation.y = float(q_target[1])
             node.target_pose.pose.orientation.z = float(q_target[2])
             node.target_pose.pose.orientation.w = float(q_target[3])
+
             node.fsm.rotation_done()
             return
 
@@ -282,6 +291,7 @@ class ContactSB(StateBehavior):
         node.target_pose.pose.position.z -= float(local_z_in_world[2] * offset)
 
     def tick(self, node):
+        node.target_pose.pose.position.x += node.translation_speed * node.dt
         node.publish_wrench(node.target_push_force_z)
 
         self.elapsed_time += node.dt
@@ -335,7 +345,7 @@ class ResetSB(StateBehavior):
         node.get_logger().info("Resetting arm back to initial pose and orientation...")
 
     def tick(self, node):
-        epsilon = 0.005
+        epsilon = 0.001
 
         node.publish_wrench(0.0)
 
@@ -411,8 +421,9 @@ class ResetSB(StateBehavior):
 class DoneSB(StateBehavior):
     """Cleanup after experiment."""
 
-    def on_enter(self, node: Node):
+    def on_enter(self, node):
         node.get_logger().info("Finished operation successfully.")
+        node.cleanup_and_shutdown()
 
     def tick(self, node):
         pass

@@ -257,7 +257,7 @@
         - fr3_joint6
         - fr3_joint7
 
-      end_effector_frame: fr3_hand_tcp
+      end_effector_frame: fr3_link8
       base_frame: base
 
   pose_broadcaster:
@@ -314,7 +314,7 @@
         - fr3_joint6
         - fr3_joint7
 
-      end_effector_frame: fr3_link8
+      end_effector_frame: fr3_hand_tcp
       base_frame: base
 
       task:
@@ -374,7 +374,7 @@
         k_pos_z: 800.0
         k_rot_x: 30.0
         k_rot_y: 30.0
-        k_rot_z: 30.0
+        k_rot_z: 20.0
 
       nullspace: 
         stiffness: 2.0

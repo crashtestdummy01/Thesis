@@ -46,8 +46,6 @@ class SurfaceContactFSM(StateChart):
 
         self.active_behavior = self.behaviors['init']
         super().__init__()
-        print(f"{self:md}")
-        self.abort()
 
     def on_transition(self, event, state, target):
         """Lifecycle hook: calls on_enter on the new handler whenever state changes."""
@@ -88,7 +86,7 @@ class ContactExperiment(Node):
             WrenchStamped, '/cartesian_impedance_controller/measured_force', self.force_callback, 10
         )
         self.pose_sub = self.create_subscription(
-            PoseStamped, '/franka_robot_state_broadcaster/current_pose', self.current_pose_callback, 10
+            PoseStamped, '/current_pose', self.current_pose_callback, 10
         )
 
 
