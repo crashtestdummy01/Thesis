@@ -59,12 +59,12 @@ class FreeContactExperimentNode(Node):
 
         # Configuration & Variables
         self.angular_speed = 0.1
-        self.approach_speed = 0.015
+        self.approach_speed = 0.025
         self.reset_speed = 0.04
-        self.contact_threshold_N = 1.5
-        self.target_push_force_z = 2.5
-        self.surface_offset = 0.01
-        self.hold_time = 20.0
+        self.contact_threshold_N = 0.5
+        self.target_push_force_z = 2.0
+        self.surface_offset = 0.015
+        self.hold_time = 15.0
         self.translation_speed = 0.01
 
         self.current_force = WrenchStamped().wrench.force
@@ -74,7 +74,7 @@ class FreeContactExperimentNode(Node):
         self.surface_point = np.array([0, 0, 0], dtype=float)
         #self.surface_normal = np.array([0.3536, 0.8536, -0.3536, 0.1464], dtype=float)
         #self.surface_normal = np.array([-0.976296, 0, -0.2164396, 0], dtype=float)
-        self.surface_normal = np.array([-0.7071068, 0, 0, 0.7071068], dtype=float)
+        self.surface_normal = np.array([0.7071068, 0, 0, 0.7071068], dtype=float)
   
         # ROS Setup
         self.pose_pub = self.create_publisher(PoseStamped, 'target_pose', 10)
@@ -279,7 +279,7 @@ class ContactSB(StateBehavior):
 
     def on_enter(self, node):
         node.get_logger().info("Maintaining contact...")
-        node.publish_stiffness([800, 800, 400])
+        node.publish_stiffness([1100, 1100, 200])
 
         o = node.target_pose.pose.orientation
         rot = R.from_quat([o.x, o.y, o.z, o.w])
@@ -377,7 +377,7 @@ class ResetSB(StateBehavior):
         o_init = node.initial_pose.pose.orientation
 
         q_curr = np.array([o_curr.x, o_curr.y, o_curr.z, o_curr.w])
-        q_init = np.array([o_init.x, o_init.y, o_init.z, o_init.w])
+        q_init = np.array([1.0, 0.0, 0.0, 0.0])
 
         norm_c = np.linalg.norm(q_curr)
         norm_i = np.linalg.norm(q_init)

@@ -13,7 +13,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import WrenchStamped
 
 
-CONTACT_THRESH_N = 6.5
+CONTACT_THRESH_N = 1.0
 
 
 class LoggerState(Enum):
@@ -27,7 +27,7 @@ class ForceLogger(Node):
         
         self.force_sub = self.create_subscription(
             WrenchStamped,
-            '/cartesian_impedance_controller/measured_force',
+            '/franka_robot_state_broadcaster/external_wrench_in_base_frame',
             self.wrench_callback,
             10
         )

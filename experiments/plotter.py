@@ -63,7 +63,7 @@ def plot_force():
 	fig.add_trace(
 	    go.Scatter(
 		x=df['time_s'],
-		y=df['force_mag'],
+		y=df['force_z']*-1.0,
 		mode='lines',
 		name=f'Force (N))',
 		line=dict(color='royalblue', width=2)

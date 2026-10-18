@@ -369,21 +369,24 @@
         output_torque: 0.85
 
       task:
-        k_pos_x: 800.0
-        k_pos_y: 800.0
-        k_pos_z: 800.0
+        k_pos_x: 1000.0
+        k_pos_y: 1000.0
+        k_pos_z: 1000.0
         k_rot_x: 30.0
         k_rot_y: 30.0
         k_rot_z: 20.0
 
       nullspace: 
         stiffness: 2.0
+     
+      variable_max_stiffness:
+        translational: 1100.0
 
       # log:
       #   enabled: true
       #   timing: true
 
-      use_friction: false
+      use_friction: true
       use_coriolis_compensation: true
       use_local_jacobian: true
 
