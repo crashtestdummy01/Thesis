@@ -2,4 +2,6 @@ ros2 action send_goal -f /franka_gripper/grasp franka_msgs/action/Grasp "{ width
 ros2 action send_goal -f /franka_gripper/move franka_msgs/action/Move "{width: 0.01, speed: 0.03}"
 ros2 control switch_controllers --deactivate joint_impedance_controller --activate cartesian_impedance_controller
 pixi run -e humble ros2 launch scripts/launch/main.launch.py
-
+ros2 run bota_driver bota_driver_node --ros-args -p node_name:=bota_ft -p config_file:=/home/ergodic_group/Matej/pixi_franka_ros2/config/bota_binary.json -p output_rate:=0
+ros2 launch realsense2_camera rs_launch.py camera_name:=cam1 serial_no:="'013222072744'"
+ros2 launch realsense2_camera rs_launch.py camera_name:=cam2 serial_no:="'746512070324'"

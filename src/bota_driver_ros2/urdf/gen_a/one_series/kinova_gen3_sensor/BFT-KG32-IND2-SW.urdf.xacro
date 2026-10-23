@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-1-g15f4949  Build Version: 1.6.7594.29634
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+  <xacro:macro name="BFT_KG32_IND2_SW" params="prefix">
+
+    <link
+      name="${prefix}_mounting">
+      <inertial>
+        <origin
+          xyz="-9.2572E-05 9.9964E-05 0.010931"
+          rpy="0 0 0" />
+        <mass
+          value="0.12276" />
+        <inertia
+          ixx="6.7604E-05"
+          ixy="-1.3153E-07"
+          ixz="-6.7322E-08"
+          iyy="7.1488E-05"
+          iyz="9.2073E-08"
+          izz="0.0001292" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0.0308"
+          rpy="1.57 0 3.14" />
+        <geometry>
+          <mesh filename="package://bota_driver/meshes/gen_a/one_series/kinova_gen3_sensor/Kinova_Gen3_Sensor.dae" />
+        </geometry>
+      </visual>
+      <collision>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.035" length="0.028"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link
+      name="${prefix}_wrench">
+      <inertial>
+        <origin
+          xyz="5.1361E-07 -0.00023207 -0.0079102"
+          rpy="0 0 0" />
+        <mass
+          value="0.12139" />
+        <inertia
+          ixx="5.1194E-05"
+          ixy="2.2369E-08"
+          ixz="1.7665E-07"
+          iyy="4.4555E-05"
+          iyz="1.1698E-07"
+          izz="9.2665E-05"/>
+      </inertial>
+    </link>
+
+    <joint
+      name="${prefix}_mounting_to_wrench"
+      type="fixed">
+      <origin
+        xyz="0 0 0.0373"
+        rpy="0 0 0" />
+      <parent
+        link="${prefix}_mounting" />
+      <child
+        link="${prefix}_wrench" />
+      <axis
+        xyz="0 0 0" />
+    </joint>
+  </xacro:macro>
+</robot>

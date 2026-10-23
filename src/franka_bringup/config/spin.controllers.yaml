@@ -380,7 +380,7 @@
         stiffness: 2.0
      
       variable_max_stiffness:
-        translational: 1100.0
+        translational: 1200.0
 
       # log:
       #   enabled: true

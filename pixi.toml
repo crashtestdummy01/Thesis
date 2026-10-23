@@ -64,6 +64,7 @@ ros-humble-foxglove-bridge= "*"
 numpy = "*"
 libopengl = "*"
 libegl-devel = "*"
+ros-humble-realsense2-camera = ">=4.55.1,<5"
 
 [feature.humble.pypi-dependencies]
 python-statemachine = ">=3.2.1, <4"

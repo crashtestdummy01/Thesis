@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import subprocess, sys, signal
 from copy import deepcopy
 
 import numpy as np
@@ -57,24 +58,27 @@ class FreeContactFSM(BehaviorGraph):
 class FreeContactExperimentNode(Node):
     def __init__(self):
         super().__init__('free_contact_node')
+        self.logger = None
+        self.exp_number = 5
 
         # Configuration & Variables
         self.angular_speed = 0.1
-        self.approach_speed = 0.01
+        self.approach_speed = 0.02
         self.reset_speed = 0.04
 
-        self.contact_threshold_N = 1.0
-        self.target_push_force_z = 1.0
+        self.contact_threshold_N = 5.5
+        self.target_push_force_z = 4.0
         self.ff_wrench = 2.0
         self.surface_offset = 0.005
         self.translation_speed = 0.015
-        self.default_stiffness = [900.0, 900.0, 900.0]
-        self.drawing_stiffness = [1000.0, 1000.0, 500.0]
-        self.k_i = 0.006
-        self.k_p = 0.0011
+        self.default_stiffness = [1100.0, 1100.0, 1100.0]
+        self.drawing_stiffness = [1100.0, 1100.0, 250.0]
+        self.k_i = 0.001
+        self.k_p = 0.0015
+        self.k_d = 0.000058
         self.max_correction = 0.01
 
-        self.waypoints = [(0.1, 0.0), (-0.1, 0.0)]
+        self.waypoints = [(0.1, 0.0), (0.0, 0.1), (-0.1, 0.0), (0.0, -0.1)]
 
         self.current_force = WrenchStamped().wrench.force
         self.current_pose_received = False
@@ -85,6 +89,7 @@ class FreeContactExperimentNode(Node):
         #self.surface_normal = np.array([-0.976296, 0, -0.2164396, 0], dtype=float)
         self.surface_normal = np.array([0.7071068, 0, 0, -0.7071068], dtype=float)
         #self.surface_normal = np.array([1.0, 0.0, 0.0, 0.0], dtype=float)
+        self.initial_orientation = np.array([1.0, 0.0, 0.0, 0.0], dtype=float)
   
         # ROS Setup
         self.pose_pub = self.create_publisher(PoseStamped, 'target_pose', 10)
@@ -135,9 +140,9 @@ class FreeContactExperimentNode(Node):
             float(k_trans[0]),
             float(k_trans[1]),
             float(k_trans[2]),
-            float(30.0),
-            float(30.0),
-            float(30.0),
+            float(40.0),
+            float(40.0),
+            float(40.0),
         ]
 
         self.stiffness_pub.publish(msg)
@@ -151,6 +156,19 @@ class FreeContactExperimentNode(Node):
         # 2. Publish pose target
         self.target_pose.header.stamp = self.get_clock().now().to_msg()
         self.pose_pub.publish(self.target_pose)
+
+    def start_logger(self):
+        self.logger = subprocess.Popen([sys.executable, "force_logger.py", str(self.exp_number)])
+
+    def stop_logger(self):
+        if self.logger and self.logger.poll() is None:
+            try:
+                self.logger.send_signal(signal.SIGINT)
+                self.logger.wait(timeout=5)
+            except (subprocess.TimeoutExpired, KeyboardInterrupt):
+                self.logger.kill()
+                self.logger.wait()
+            self.logger = None
 
     def cleanup_and_shutdown(self):
         self.get_logger().info("Experiment complete. Shutting down...")
@@ -179,6 +197,7 @@ class InitSB(StateBehavior):
 
     def tick(self, node):
         if node.current_pose_received:
+            node.publish_stiffness(node.default_stiffness)
             node.fsm.begin_task()
         else:
             node.get_logger().info_throttle_monotonic(
@@ -288,6 +307,8 @@ class ContactSB(StateBehavior):
         self.elapsed_time = 0.0
         self.trajectory = None
         self.acc_error = 0.0
+        self.prev_force_z = None
+        self.d_filtered = 0.0
 
     def on_enter(self, node):
         node.get_logger().info("Maintaining contact...")
@@ -304,22 +325,28 @@ class ContactSB(StateBehavior):
         
         self.trajectory = generate_trajectory(node.waypoints, node.translation_speed, node.dt)
         self.acc_error = 0.0
+        node.start_logger()
 
     def tick(self, node):
-        change = False
         self.elapsed_time += node.dt
         if self.elapsed_time <= 0.5:
             return
         node.publish_wrench(node.ff_wrench)
 
-        force_error_z = node.target_push_force_z - float(node.current_force.z)
-
+        force_z = float(node.current_force.z)
+        force_error_z = node.target_push_force_z - force_z
         self.acc_error += node.k_i * force_error_z * node.dt
         self.acc_error = max(-node.max_correction, min(node.max_correction, self.acc_error))
 
+        if self.prev_force_z is None:
+            self.prev_force_z = force_z
+        d_offset = -node.k_d * (force_z - self.prev_force_z) / node.dt      # d(error)/dt for a constant setpoint
+        self.prev_force_z = force_z
+
+
         p_offset = node.k_p * force_error_z
         total_z_correction = max(-node.max_correction, 
-                             min(node.max_correction, p_offset + self.acc_error))
+                             min(node.max_correction, p_offset + self.acc_error + d_offset))
         print(f"Total correction: {total_z_correction: 8.4f} || I error: {self.acc_error: 8.4f} || P error: {p_offset: 8.4f} || F error: {force_error_z: 8.4f} || Curr F: {node.current_force.z: 8.4f}")
 
         if self.trajectory is None:
@@ -328,11 +355,9 @@ class ContactSB(StateBehavior):
         dx, dy = next(self.trajectory, (None, None))
         if dx is None or dy is None:
             node.fsm.trigger_retracting()
+            node.stop_logger()
             self.force_correction_z = 0.0
             return
-        if dx < 0 and not change:
-            change = True
-            print("Moving back")
         o = node.surface_normal
         q_curr = [o[0], o[1], o[2], o[3]]
         
@@ -364,7 +389,7 @@ class RetractSB(StateBehavior):
         local_z_in_world = rot.apply([0.0, 0.0, 1.0])
 
         # Retract 10mm (0.01m) away from surface
-        retract_dist = 0.01
+        retract_dist = 0.005
 
         delta = retract_dist * local_z_in_world
         delta_norm = np.linalg.norm(delta)
@@ -419,10 +444,9 @@ class ResetSB(StateBehavior):
 
         # --- 2. Orientation Interpolation ---
         o_curr = node.target_pose.pose.orientation
-        o_init = node.initial_pose.pose.orientation
 
         q_curr = np.array([o_curr.x, o_curr.y, o_curr.z, o_curr.w])
-        q_init = np.array([1.0, 0.0, 0.0, 0.0])
+        q_init = np.array(node.initial_orientation)
 
         norm_c = np.linalg.norm(q_curr)
         norm_i = np.linalg.norm(q_init)
