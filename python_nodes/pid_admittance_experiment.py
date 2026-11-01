@@ -59,15 +59,15 @@ class FreeContactExperimentNode(Node):
     def __init__(self):
         super().__init__('free_contact_node')
         self.logger = None
-        self.exp_number = 5
+        self.exp_number = 10
 
         # Configuration & Variables
         self.angular_speed = 0.1
         self.approach_speed = 0.02
         self.reset_speed = 0.04
 
-        self.contact_threshold_N = 5.5
-        self.target_push_force_z = 4.0
+        self.contact_threshold_N = 2.0
+        self.target_push_force_z = 1.0
         self.ff_wrench = 2.0
         self.surface_offset = 0.005
         self.translation_speed = 0.015
@@ -78,7 +78,7 @@ class FreeContactExperimentNode(Node):
         self.k_d = 0.000058
         self.max_correction = 0.01
 
-        self.waypoints = [(0.1, 0.0), (0.0, 0.1), (-0.1, 0.0), (0.0, -0.1)]
+        self.waypoints = [(0.1, 0.0), (0.0, 0.03), (-0.1, 0.0), (0.0, -0.03)]
 
         self.current_force = WrenchStamped().wrench.force
         self.current_pose_received = False
@@ -89,7 +89,7 @@ class FreeContactExperimentNode(Node):
         #self.surface_normal = np.array([-0.976296, 0, -0.2164396, 0], dtype=float)
         self.surface_normal = np.array([0.7071068, 0, 0, -0.7071068], dtype=float)
         #self.surface_normal = np.array([1.0, 0.0, 0.0, 0.0], dtype=float)
-        self.initial_orientation = np.array([1.0, 0.0, 0.0, 0.0], dtype=float)
+        self.initial_orientation = np.array([1.0, 0, 0, 0], dtype=float)
   
         # ROS Setup
         self.pose_pub = self.create_publisher(PoseStamped, 'target_pose', 10)

@@ -22,6 +22,7 @@ libtmux = ">=0.46.2,<0.47"
 omegaconf = "*"
 git = "*"
 mujoco = ">=3.2.7,<4"
+transforms3d = ">=0.4.2,<0.5"
 
 [tasks]
 my_setup = "bash scripts/setup.sh"
@@ -65,6 +66,8 @@ numpy = "*"
 libopengl = "*"
 libegl-devel = "*"
 ros-humble-realsense2-camera = ">=4.55.1,<5"
+opencv = ">=4.7"
+transforms3d = ">=0.4.2,<0.5"
 
 [feature.humble.pypi-dependencies]
 python-statemachine = ">=3.2.1, <4"

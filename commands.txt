@@ -1,3 +1,4 @@
+// Gripper control
 ros2 action send_goal -f /franka_gripper/grasp franka_msgs/action/Grasp "{ width: 0.0, speed: 0.03, force: 8.0, epsilon: {inner: 0.0, outer: 0.08} }"
 ros2 action send_goal -f /franka_gripper/move franka_msgs/action/Move "{width: 0.01, speed: 0.03}"
 ros2 control switch_controllers --deactivate joint_impedance_controller --activate cartesian_impedance_controller
@@ -5,3 +6,36 @@ pixi run -e humble ros2 launch scripts/launch/main.launch.py
 ros2 run bota_driver bota_driver_node --ros-args -p node_name:=bota_ft -p config_file:=/home/ergodic_group/Matej/pixi_franka_ros2/config/bota_binary.json -p output_rate:=0
 ros2 launch realsense2_camera rs_launch.py camera_name:=cam1 serial_no:="'013222072744'"
 ros2 launch realsense2_camera rs_launch.py camera_name:=cam2 serial_no:="'746512070324'"
+
+python aruco_tf_detector.py --ros-args \
+  -r __node:=cam1_detector \
+  -p mode:=charuco \
+  -p image_topic:=/camera/cam1/color/image_raw \
+  -p camera_info_topic:=/camera/cam1/color/camera_info \
+  -p marker_frame:=cam1_marker \
+  -p dictionary:=DICT_7X7_1000 \
+  -p squares_x:=4 -p squares_y:=3 \
+  -p square_length:=0.025 -p marker_length:=0.018
+  
+python aruco_tf_detector.py --ros-args \
+  -r __node:=cam2_detector \
+  -p mode:=charuco \
+  -p image_topic:=/camera/cam2/color/image_raw \
+  -p camera_info_topic:=/camera/cam2/color/camera_info \
+  -p marker_frame:=cam2_marker \
+  -p dictionary:=DICT_7X7_1000 \
+  -p squares_x:=4 -p squares_y:=3 \
+  -p square_length:=0.025 -p marker_length:=0.018
+  
+python aruco_tf_detector.py --ros-args \
+  -r __node:=cam1_detector \
+  -p mode:=aruco -p marker_id:=0 -p marker_size:=0.18 \
+  -p dictionary:=DICT_6X6_1000 \
+  -p image_topic:=/camera/cam1/color/image_raw \
+  -p camera_info_topic:=/camera/cam1/color/camera_info \
+  -p marker_frame:=cam1_marker
+  
+ros2 run tf2_ros tf2_echo cam1_color_optical_frame cam1_marker
+ros2 run tf2_ros tf2_echo cam2_color_optical_frame cam2_marker
+ros2 launch ./scripts/launch/handeye_calibrate.launch.py cam:=cam1 robot_base_frame:=fr3_link0 robot_effector_frame:=fr3_link8
+ros2 launch ./scripts/launch/handeye_calibrate.launch.py cam:=cam2 robot_base_frame:=fr3_link0 robot_effector_frame:=fr3_link8

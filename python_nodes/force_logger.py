@@ -11,6 +11,7 @@ from geometry_msgs.msg import WrenchStamped, PoseStamped
 
 
 CONTACT_THRESH_N = 0.0
+FORCE_TOPIC = "/bota_ft/wrench_compensated"
 
 
 class LoggerState(Enum):
@@ -29,7 +30,7 @@ class ForceLogger(Node):
 
         self.force_sub = self.create_subscription(
             WrenchStamped,
-            '/cartesian_impedance_controller/measured_force',
+            FORCE_TOPIC,
             self.wrench_callback,
             10
         )

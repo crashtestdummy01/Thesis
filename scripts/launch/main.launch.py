@@ -45,6 +45,7 @@
 ############################################################################
 
 import sys
+import os
 
 import franka_bringup.launch_utils as launch_utils
 
@@ -57,11 +58,12 @@ from launch.actions import (
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch.conditions import IfCondition
 from launch_ros.substitutions import FindPackageShare
 
 # constant for the controller name parameter
 CONTROLLER_EXAMPLE = 'controller'
-
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 load_yaml = launch_utils.load_yaml
 get_parameter_for_config = launch_utils.get_parameter_for_config
@@ -129,7 +131,7 @@ def generate_robot_nodes(context):
                     package="controller_manager",
                     executable="spawner",
                     namespace=namespace,
-                    arguments=["cartesian_impedance_controller", #"--inactive"
+                    arguments=["cartesian_impedance_controller", # "--inactive"
                     ],
                     output="screen",
                 ),
@@ -187,7 +189,35 @@ def generate_robot_nodes(context):
             )
         )
     return nodes
+    
+def realsense(name, serial):
+    return IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [FindPackageShare('realsense2_camera'), 'launch', 'rs_launch.py']
+            )
+        ),
+        launch_arguments={
+            'camera_name': name,
+            'serial_no': f"'{serial}'",
+        }.items(),
+        condition=IfCondition(LaunchConfiguration('use_cameras')),
+    )
 
+def bota_ft_sensor():
+    return Node(
+        package='bota_driver',
+        executable='bota_driver_node',
+        output='screen',
+        parameters=[
+            {
+                'node_name': 'bota_ft',
+                'config_file': '/home/ergodic_group/Matej/pixi_franka_ros2/config/bota_binary.json',
+                'output_rate': 0,
+            }
+        ],
+        condition=IfCondition(LaunchConfiguration('use_ft_sensor')),
+    )
 
 # The generate_launch_description function is the entry point (like 'main')
 # It is called by the ROS 2 launch system when the launch file is executed.
@@ -197,6 +227,10 @@ def generate_robot_nodes(context):
 
 
 def generate_launch_description():
+    handeye_publish = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(HERE, 'handeye_publish.launch.py')),
+        condition=IfCondition(LaunchConfiguration('use_handeye')),
+    )
     return LaunchDescription(
         [
             DeclareLaunchArgument(
@@ -217,6 +251,16 @@ def generate_launch_description():
                 ),
                 description="Override the default controllers.yaml file.",
             ),
+            DeclareLaunchArgument('use_cameras', default_value='true'),
+            DeclareLaunchArgument('use_handeye', default_value='true'),
+            DeclareLaunchArgument('use_ft_sensor', default_value='true'),
             OpaqueFunction(function=generate_robot_nodes),
+            realsense('cam1', '013222072744'),
+            realsense('cam2', '746512070324'),
+            handeye_publish,
+            bota_ft_sensor(),
         ]
     )
+    
+    
+

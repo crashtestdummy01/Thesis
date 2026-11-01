@@ -1,0 +1,502 @@
+#!/usr/bin/env python3
+
+import subprocess, sys, signal
+from copy import deepcopy
+
+import numpy as np
+import rclpy
+import math
+from rclpy.node import Node
+from geometry_msgs.msg import PoseStamped, WrenchStamped
+from std_msgs.msg import Float64MultiArray
+from statemachine import State
+from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Slerp
+
+from behaviors import StateBehavior, BehaviorGraph
+from trajectories import generate_trajectory, verify
+
+
+class FreeContactFSM(BehaviorGraph):
+    init = State(initial=True)
+    align_ee = State()
+    approach = State()
+    contact = State()
+    retracting = State()
+    resetting = State()
+    done = State(final=True)
+    stopped = State(final=True)
+
+    begin_task = init.to(align_ee)
+    rotation_done = align_ee.to(approach)
+    contact_detected = approach.to(contact)
+    trigger_retracting = contact.to(retracting)
+    cleanup = retracting.to(resetting)
+    finish = resetting.to(done)
+    abort = (
+            init.to(stopped)
+            | align_ee.to(stopped)
+            | approach.to(stopped)
+            | contact.to(stopped)
+            | retracting.to(stopped)
+            | resetting.to(stopped)
+    )
+
+    def __init__(self, node):
+        super().__init__(node)
+        self.node = node
+
+        self.attach_behavior('init', InitSB())
+        self.attach_behavior('align_ee', AlignEndEffectorSB())
+        self.attach_behavior('approach', ApproachSB())
+        self.attach_behavior('contact', ContactSB())
+        self.attach_behavior('retracting', RetractSB())
+        self.attach_behavior('resetting', ResetSB())
+        self.attach_behavior('done', DoneSB())
+
+
+class FreeContactExperimentNode(Node):
+    def __init__(self):
+        super().__init__('free_contact_node')
+        self.logger = None
+        self.exp_number = 21
+
+        # Configuration & Variables
+        self.angular_speed = 0.1
+        self.approach_speed = 0.02
+        self.reset_speed = 0.04
+
+        self.contact_threshold_N = 0.5
+        self.target_push_force_z = 0.7
+        self.ff_wrench = 2.5
+        self.surface_offset = 0.005
+        self.translation_speed = 0.015
+        self.default_stiffness = [1100.0, 1100.0, 1100.0]
+        self.drawing_stiffness = [1100.0, 1100.0, 250.0]
+        self.k_i = 0.001
+        self.k_p = 0.0015
+        self.k_d = 0.000058
+        self.max_correction = 0.01
+
+        self.waypoints = [(0.1, 0.0), (0.0, 0.03), (-0.1, 0.0), (0.0, -0.03)]
+
+        self.current_force = 0.0
+        self.current_pose_received = False
+        self.target_pose = PoseStamped()
+        self.initial_pose = PoseStamped()
+        self.surface_point = np.array([0, 0, 0], dtype=float)
+        #self.surface_normal = np.array([0.3536, 0.8536, -0.3536, 0.1464], dtype=float)
+        #self.surface_normal = np.array([-0.976296, 0, -0.2164396, 0], dtype=float)
+        self.surface_normal = np.array([0.7071068, 0, 0, 0.7071068], dtype=float)
+        #self.surface_normal = np.array([1.0, 0.0, 0.0, 0.0], dtype=float)
+        self.initial_orientation = np.array([0.7071068, 0, 0, 0.7071068], dtype=float)
+  
+        # ROS Setup
+        self.pose_pub = self.create_publisher(PoseStamped, 'target_pose', 10)
+        self.wrench_pub = self.create_publisher(WrenchStamped, 'target_wrench', 10)
+        self.stiffness_pub = self.create_publisher(Float64MultiArray, '/target_stiffness', 10)
+
+        self.force_sub = self.create_subscription(
+            WrenchStamped, '/bota_ft/wrench_compensated', self.force_callback, 10
+        )
+        self.pose_sub = self.create_subscription(
+            PoseStamped, '/current_pose', self.current_pose_callback, 10
+        )
+
+        # Attach State Coordinator
+        self.fsm = FreeContactFSM(node=self)
+        self.fsm.validate()
+        self.fsm.start_fsm()
+
+        self.dt = 0.05  # 20 Hz
+        self.timer = self.create_timer(self.dt, self.control_loop)
+
+    def force_callback(self, msg: WrenchStamped):
+        self.current_force = msg.wrench.force.z * -1.0
+
+    def current_pose_callback(self, msg: PoseStamped):
+        # Capture initial pose once at startup
+        if not self.current_pose_received:
+            self.target_pose = deepcopy(msg)
+
+            self.current_pose_received = True
+            
+            self.initial_pose = deepcopy(self.target_pose)
+            self.get_logger().info(
+                f'Initial pose -> {self.initial_pose.pose}'
+            )
+
+    def publish_wrench(self, force_z):
+        msg = WrenchStamped()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = 'hand'
+        msg.wrench.force.z = force_z
+        self.wrench_pub.publish(msg)
+
+    def publish_stiffness(self, k_trans):
+        msg = Float64MultiArray()
+
+        msg.data = [
+            float(k_trans[0]),
+            float(k_trans[1]),
+            float(k_trans[2]),
+            float(38.0),
+            float(38.0),
+            float(38.0),
+        ]
+
+        self.stiffness_pub.publish(msg)
+        self.get_logger().info(
+            f'Published Stiffness -> {msg.data}'
+        )
+
+    def control_loop(self):
+        self.fsm.tick()
+
+        # 2. Publish pose target
+        self.target_pose.header.stamp = self.get_clock().now().to_msg()
+        self.pose_pub.publish(self.target_pose)
+
+    def start_logger(self):
+        self.logger = subprocess.Popen([sys.executable, "force_logger.py", str(self.exp_number)])
+
+    def stop_logger(self):
+        if self.logger and self.logger.poll() is None:
+            try:
+                self.logger.send_signal(signal.SIGINT)
+                self.logger.wait(timeout=5)
+            except (subprocess.TimeoutExpired, KeyboardInterrupt):
+                self.logger.kill()
+                self.logger.wait()
+            self.logger = None
+
+    def cleanup_and_shutdown(self):
+        self.get_logger().info("Experiment complete. Shutting down...")
+        if self.timer:
+            self.timer.cancel()
+
+        raise SystemExit
+        
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = FreeContactExperimentNode()
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, SystemExit):
+        pass
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+
+
+class InitSB(StateBehavior):
+    """Initial state. Capture start state."""
+
+    def tick(self, node):
+        if node.current_pose_received:
+            node.publish_stiffness(node.default_stiffness)
+            node.fsm.begin_task()
+        else:
+            node.get_logger().info_throttle_monotonic(
+                node, 2000, "Waiting for initial pose from state broadcaster..."
+            )
+
+
+class AlignEndEffectorSB(StateBehavior):
+    """Align end effector local z-axis with contact normal using step-wise error tracking."""
+
+    def on_enter(self, node):
+        node.get_logger().info("Aligning end effector orientation...")
+
+    def tick(self, node):
+        epsilon = 0.001  # ~0.3 degrees threshold
+        # 1. Current target pose orientation in SciPy format [x, y, z, w]
+        o_curr = node.target_pose.pose.orientation
+        q_curr = np.array([o_curr.x, o_curr.y, o_curr.z, o_curr.w])
+
+        # 2. Extract target quaternion from node.surface_normal array [w, x, y, z] -> [x, y, z, w]
+        q_target = node.surface_normal
+
+        # Maintain shortest arc rotation across antipodal quats
+        if np.dot(q_curr, q_target) < 0:
+            q_target = -q_target
+
+        # 3. Compute remaining angular distance (radians)
+        dot_prod = np.clip(abs(np.dot(q_curr, q_target)), -1.0, 1.0)
+        angle_error = 2.0 * np.arccos(dot_prod)
+
+        # 4. Check convergence condition
+        if angle_error <= epsilon:
+            # Snap exactly to target orientation
+            node.target_pose.pose.orientation.x = float(q_target[0])
+            node.target_pose.pose.orientation.y = float(q_target[1])
+            node.target_pose.pose.orientation.z = float(q_target[2])
+            node.target_pose.pose.orientation.w = float(q_target[3])
+
+            node.fsm.rotation_done()
+            return
+
+        # 5. Advance orientation by step distance (angular_speed * dt)
+        step_angle = node.angular_speed * node.dt
+        ratio = min(step_angle / angle_error, 1.0)
+
+        times = [0.0, 1.0]
+        rotations = R.from_quat([q_curr, q_target])
+        slerp = Slerp(times, rotations)
+        q_next = slerp(ratio).as_quat()
+
+        # Update pose target
+        node.target_pose.pose.orientation.x = float(q_next[0])
+        node.target_pose.pose.orientation.y = float(q_next[1])
+        node.target_pose.pose.orientation.z = float(q_next[2])
+        node.target_pose.pose.orientation.w = float(q_next[3])
+
+    def on_leave(self, node):
+        node.get_logger().info("Orientation alignment complete.")
+
+
+class ApproachSB(StateBehavior):
+    """Move the arm along the local Z-axis of the end effector until contact is detected."""
+
+    def on_enter(self, node):
+        node.get_logger().info("Moving towards surface...")
+
+    def tick(self, node):
+        # 1. Maintain zero wrench during approach
+        node.publish_wrench(0.0)
+
+        # 2. Extract current orientation quaternion [x, y, z, w]
+        o = node.target_pose.pose.orientation
+        q_curr = [o.x, o.y, o.z, o.w]
+
+        # 3. Transform local +Z direction vector [0, 0, 1] into world coordinates
+        rot = R.from_quat(q_curr)
+        local_z_in_world = rot.apply([0.0, 0.0, 1.0])
+
+        # 4. Advance target position along transformed local Z vector
+        step = node.approach_speed * node.dt
+        node.target_pose.pose.position.x += float(local_z_in_world[0] * step)
+        node.target_pose.pose.position.y += float(local_z_in_world[1] * step)
+        node.target_pose.pose.position.z += float(local_z_in_world[2] * step)
+
+        # 5. Check contact condition
+        if node.current_force >= node.contact_threshold_N:
+            # Store contact location
+            node.surface_point = np.array([
+                node.target_pose.pose.position.x,
+                node.target_pose.pose.position.y,
+                node.target_pose.pose.position.z,
+            ], dtype=float)
+
+            node.fsm.contact_detected()
+
+    def on_leave(self, node):
+        node.get_logger().info(
+            f"Contact detected! Force={node.current_force:.2f}N at Z={node.target_pose.pose.position.z:.4f}m."
+        )
+
+
+class ContactSB(StateBehavior):
+    """Maintain contact with target force for 2 seconds with a 5mm position offset."""
+
+    def __init__(self):
+        super().__init__()
+        self.elapsed_time = 0.0
+        self.trajectory = None
+        self.acc_error = 0.0
+        self.prev_force_z = None
+        self.d_filtered = 0.0
+
+    def on_enter(self, node):
+        node.get_logger().info("Maintaining contact...")
+
+        o = node.target_pose.pose.orientation
+        rot = R.from_quat([o.x, o.y, o.z, o.w])
+        local_z_in_world = rot.apply([0.0, 0.0, 1.0])
+
+        offset = node.surface_offset
+        node.target_pose.pose.position.x -= float(local_z_in_world[0] * offset)
+        node.target_pose.pose.position.y -= float(local_z_in_world[1] * offset)
+        node.target_pose.pose.position.z -= float(local_z_in_world[2] * offset)
+        node.publish_stiffness(node.drawing_stiffness)
+        
+        self.trajectory = generate_trajectory(node.waypoints, node.translation_speed, node.dt)
+        self.acc_error = 0.0
+        node.start_logger()
+
+    def tick(self, node):
+        self.elapsed_time += node.dt
+        if self.elapsed_time <= 0.5:
+            return
+        node.publish_wrench(node.ff_wrench)
+
+        force_z = float(node.current_force)
+        force_error_z = node.target_push_force_z - force_z
+        self.acc_error += node.k_i * force_error_z * node.dt
+        self.acc_error = max(-node.max_correction, min(node.max_correction, self.acc_error))
+
+        if self.prev_force_z is None:
+            self.prev_force_z = force_z
+        d_offset = -node.k_d * (force_z - self.prev_force_z) / node.dt      # d(error)/dt for a constant setpoint
+        self.prev_force_z = force_z
+
+
+        p_offset = node.k_p * force_error_z
+        total_z_correction = max(-node.max_correction, 
+                             min(node.max_correction, p_offset + self.acc_error + d_offset))
+        print(f"Total correction: {total_z_correction: 8.4f} || I error: {self.acc_error: 8.4f} || P error: {p_offset: 8.4f} || F error: {force_error_z: 8.4f} || Curr F: {node.current_force: 8.4f}")
+
+        if self.trajectory is None:
+            return
+        
+        dx, dy = next(self.trajectory, (None, None))
+        if dx is None or dy is None:
+            node.fsm.trigger_retracting()
+            node.stop_logger()
+            self.force_correction_z = 0.0
+            return
+        o = node.surface_normal
+        q_curr = [o[0], o[1], o[2], o[3]]
+        
+        rot = R.from_quat(q_curr)
+        translation_in_world = rot.apply([dx, dy, total_z_correction])
+        
+        node.target_pose.pose.position.x += float(translation_in_world[0])
+        node.target_pose.pose.position.y += float(translation_in_world[1])
+        node.target_pose.pose.position.z += float(translation_in_world[2])
+
+    def on_leave(self, node):
+        node.publish_wrench(0.0)
+
+
+class RetractSB(StateBehavior):
+    """Retract arm away from the surface along local -Z."""
+
+    def on_enter(self, node):
+        node.get_logger().info("Task complete. Retracting arm...")
+        node.publish_wrench(0.0)
+        node.publish_stiffness(node.default_stiffness)
+
+    def tick(self, node):
+        node.publish_wrench(0.0)
+
+        # Compute local +Z vector
+        o = node.target_pose.pose.orientation
+        rot = R.from_quat([o.x, o.y, o.z, o.w])
+        local_z_in_world = rot.apply([0.0, 0.0, 1.0])
+
+        # Retract 10mm (0.01m) away from surface
+        retract_dist = 0.005
+
+        delta = retract_dist * local_z_in_world
+        delta_norm = np.linalg.norm(delta)
+
+        if delta_norm > 0.02 and delta_norm > 0:
+            delta = (delta / delta_norm) * 0.02
+
+        print(f"Computed values: d = {delta} | |d| = {delta_norm}")
+        print(f"Retract distance = {local_z_in_world * retract_dist}")
+
+        node.target_pose.pose.position.x -= float(local_z_in_world[0] * retract_dist)
+        node.target_pose.pose.position.y -= float(local_z_in_world[1] * retract_dist)
+        node.target_pose.pose.position.z -= float(local_z_in_world[2] * retract_dist)
+
+        # Transition to resetting state using FSM event trigger name
+        node.fsm.cleanup()
+
+
+class ResetSB(StateBehavior):
+    """Linearly interpolates position and SLERP interpolates orientation back to initial_pose."""
+
+    def on_enter(self, node):
+        node.get_logger().info("Resetting arm back to initial pose and orientation...")
+
+    def tick(self, node):
+        epsilon = 0.001
+
+        node.publish_wrench(0.0)
+
+        # --- 1. Position Interpolation ---
+        curr_p = node.target_pose.pose.position
+        init_p = node.initial_pose.pose.position
+
+        dx = init_p.x - curr_p.x
+        dy = init_p.y - curr_p.y
+        dz = init_p.z - curr_p.z
+        dist_pos = math.sqrt(dx * dx + dy * dy + dz * dz)
+
+        step_pos = node.reset_speed * node.dt
+        pos_done = False
+
+        if dist_pos <= step_pos:
+            curr_p.x = init_p.x
+            curr_p.y = init_p.y
+            curr_p.z = init_p.z
+            pos_done = True
+        else:
+            ratio_pos = step_pos / dist_pos
+            curr_p.x += dx * ratio_pos
+            curr_p.y += dy * ratio_pos
+            curr_p.z += dz * ratio_pos
+
+        # --- 2. Orientation Interpolation ---
+        o_curr = node.target_pose.pose.orientation
+
+        q_curr = np.array([o_curr.x, o_curr.y, o_curr.z, o_curr.w])
+        q_init = np.array(node.initial_orientation)
+
+        norm_c = np.linalg.norm(q_curr)
+        norm_i = np.linalg.norm(q_init)
+        if norm_c > 0:
+            q_curr /= norm_c
+        if norm_i > 0:
+            q_init /= norm_i
+
+        # Shortest path handling across antipodal quaternions
+        if np.dot(q_curr, q_init) < 0:
+            q_init = -q_init
+
+        dot_prod = np.clip(abs(np.dot(q_curr, q_init)), -1.0, 1.0)
+        angle_error = 2.0 * np.arccos(dot_prod)
+
+        ang_speed = node.angular_speed
+        step_rot = ang_speed * node.dt
+        rot_done = False
+
+        if angle_error <= epsilon:
+            o_curr.x = float(q_init[0])
+            o_curr.y = float(q_init[1])
+            o_curr.z = float(q_init[2])
+            o_curr.w = float(q_init[3])
+            rot_done = True
+        else:
+            ratio_rot = min(step_rot / angle_error, 1.0)
+            slerp = Slerp([0.0, 1.0], R.from_quat([q_curr, q_init]))
+            q_next = slerp(ratio_rot).as_quat()
+
+            o_curr.x = float(q_next[0])
+            o_curr.y = float(q_next[1])
+            o_curr.z = float(q_next[2])
+            o_curr.w = float(q_next[3])
+
+        # --- 3. Completion Check ---
+        if pos_done and rot_done:
+            node.fsm.finish()
+
+
+class DoneSB(StateBehavior):
+    """Cleanup after experiment."""
+
+    def on_enter(self, node):
+        node.get_logger().info("Finished operation successfully.")
+        node.cleanup_and_shutdown()
+
+    def tick(self, node):
+        pass
+
+
+if __name__ == '__main__':
+    main()

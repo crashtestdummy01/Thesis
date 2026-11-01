@@ -1,0 +1,21 @@
+<library path="bota_payload_utils_controllers">
+
+    <class name="bota_payload_utils_controllers/BotaPayloadCompensatorController"
+           type="bota_payload_utils_controllers::BotaPayloadCompensatorController" 
+           base_class_type="controller_interface::ChainableControllerInterface">
+        <description>
+            Controller that discounts static and dynamic contributions due to a payload from a wrench measurement.
+        </description>
+    </class>
+
+    <class name="bota_payload_utils_controllers/BotaPayloadEstimatorController"
+           type="bota_payload_utils_controllers::BotaPayloadEstimatorController" 
+           base_class_type="controller_interface::ChainableControllerInterface">
+        <description>
+            Controller that estimates the payload based on wrench and IMU measurements and provides estimation status.
+        </description>
+    </class>
+
+</library>
+
+
