@@ -68,6 +68,8 @@ libegl-devel = "*"
 ros-humble-realsense2-camera = ">=4.55.1,<5"
 opencv = ">=4.7"
 transforms3d = ">=0.4.2,<0.5"
+plotly = ">=6.1.2,<7"
+pandas = ">=2.3.0,<3"
 
 [feature.humble.pypi-dependencies]
 python-statemachine = ">=3.2.1, <4"

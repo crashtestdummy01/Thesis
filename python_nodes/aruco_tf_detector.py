@@ -108,7 +108,7 @@ class ArucoTfDetector(Node):
         self.declare_parameter("legacy_pattern", False)
         self.declare_parameter("min_charuco_corners", 6)
         # quality gate + debug
-        self.declare_parameter("max_reproj_error_px", 1.5)
+        self.declare_parameter("max_reproj_error_px", 1.8)
         self.declare_parameter("publish_debug_image", True)
 
         p = self.get_parameter

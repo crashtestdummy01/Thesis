@@ -59,7 +59,7 @@ class FreeContactExperimentNode(Node):
     def __init__(self):
         super().__init__('free_contact_node')
         self.logger = None
-        self.exp_number = 21
+        self.exp_number = 30
 
         # Configuration & Variables
         self.angular_speed = 0.1
