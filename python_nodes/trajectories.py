@@ -48,3 +48,26 @@ def verify(traj, speed, verbose=True):
         if math.hypot(*point) > speed:
             return False
     return True
+
+
+def relative_circle_points(n, r):
+    """Return n relative (delta) coordinates describing n equally spaced
+    points on a circle of radius r.
+
+    Element k is the displacement from point k-1 to point k
+    (point -1 wraps around to point n-1).
+    """
+    # Absolute points, evenly spaced, starting at angle 0
+    abs_pts = [
+        (r * math.cos(2 * math.pi * k / n), r * math.sin(2 * math.pi * k / n))
+        for k in range(n)
+    ]
+
+    # Differences between each point and the previous one (cyclic)
+    return [
+        (abs_pts[k][0] - abs_pts[k - 1][0], abs_pts[k][1] - abs_pts[k - 1][1])
+        for k in range(n)
+    ]
+
+out = relative_circle_points(12, 0.03)
+print([(round(x, 10) + 0.0, round(y, 10) + 0.0) for x, y in out])

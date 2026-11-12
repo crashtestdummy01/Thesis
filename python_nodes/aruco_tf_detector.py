@@ -165,7 +165,7 @@ class ArucoTfDetector(Node):
         self.create_subscription(
             Image, p("image_topic").value, self.on_image, qos_profile_sensor_data
         )
-        self.debug_pub = self.create_publisher(Image, "~/debug_image", 1)
+        self.debug_pub = self.create_publisher(Image, "/camera/cam1/color/debug_image", 1)
 
         self.get_logger().info(
             f"Mode '{self.mode}', publishing tf -> '{self.marker_frame}'"

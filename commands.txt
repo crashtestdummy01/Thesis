@@ -39,3 +39,13 @@ ros2 run tf2_ros tf2_echo cam1_color_optical_frame cam1_marker
 ros2 run tf2_ros tf2_echo cam2_color_optical_frame cam2_marker
 ros2 launch ./scripts/launch/handeye_calibrate.launch.py cam:=cam1 robot_base_frame:=fr3_link0 robot_effector_frame:=fr3_link8
 ros2 launch ./scripts/launch/handeye_calibrate.launch.py cam:=cam2 robot_base_frame:=fr3_link0 robot_effector_frame:=fr3_link8
+
+python aruco_tf_detector.py --ros-args \
+  -r __node:=cam1_detector \
+  -p mode:=charuco \
+  -p image_topic:=/camera/cam1/color/image_raw \
+  -p camera_info_topic:=/camera/cam1/color/camera_info \
+  -p marker_frame:=cam1_marker \
+  -p dictionary:=DICT_5X5_1000 \
+  -p squares_x:=6 -p squares_y:=4 \
+  -p square_length:=0.04 -p marker_length:=0.03
