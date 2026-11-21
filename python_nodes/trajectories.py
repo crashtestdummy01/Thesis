@@ -69,5 +69,5 @@ def relative_circle_points(n, r):
         for k in range(n)
     ]
 
-out = relative_circle_points(12, 0.03)
+out = relative_circle_points(5, 0.05)
 print([(round(x, 10) + 0.0, round(y, 10) + 0.0) for x, y in out])

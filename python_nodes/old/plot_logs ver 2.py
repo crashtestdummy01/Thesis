@@ -21,7 +21,7 @@ from plotly.subplots import make_subplots
 # CONFIG
 # =====================================================================
 
-EXPERIMENT = 40                 # experiment number used by force_logger.py
+EXPERIMENT = 54                 # experiment number used by force_logger.py
 DATA_DIR = "."                  # folder that the source paths below are relative to
 
 # Data sources. The FIRST entry is the base: its time axis is the one every
@@ -43,7 +43,7 @@ SOURCES = [
 ]
 
 # What to plot.
-X_COLUMN = "pos_x"
+X_COLUMN = "pos_y"
 
 # One entry per subplot (stacked vertically, shared x axis).
 # A string gives one trace; a list overlays several traces in the same subplot,
@@ -60,7 +60,7 @@ SHOW_MARKERS = False            # draw markers in addition to lines
 # Optional: force 1:1 scaling between the x and y axes (useful when x and y
 # have the same units, e.g. plotting a path pos_y vs pos_x). Leave False for
 # things like force vs time, where the units differ.
-LOCK_UNIFORM_AXES = False
+LOCK_UNIFORM_AXES = True
 
 PLOT_HEIGHT = None              # pixels; None = fill the browser window
 SAVE_PATH = None                # e.g. "out.html" to save instead of opening a browser tab

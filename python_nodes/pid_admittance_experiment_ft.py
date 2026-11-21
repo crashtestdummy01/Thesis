@@ -59,7 +59,7 @@ class FreeContactExperimentNode(Node):
     def __init__(self):
         super().__init__('free_contact_node')
         self.logger = None
-        self.exp_number = 43
+        self.exp_number = 63
 
         # Configuration & Variables
         self.angular_speed = 0.1
@@ -67,19 +67,21 @@ class FreeContactExperimentNode(Node):
         self.reset_speed = 0.04
 
         self.contact_threshold_N = 0.5
-        self.target_push_force_z = 0.7
+        self.target_push_force_z = 1.0
         self.ff_wrench = 2.5
         self.surface_offset = 0.005
-        self.translation_speed = 0.025
+        self.translation_speed = 0.01
         self.default_stiffness = [1100.0, 1100.0, 1100.0]
-        self.drawing_stiffness = [800.0, 800.0, 250.0]
-        self.k_i = 0.001
+        self.drawing_stiffness = [1100.0, 1100.0, 250.0]
+        self.k_i = 0.000
         self.k_p = 0.0015
-        self.k_d = 0.000058
-        self.max_correction = 0.01
+        self.k_d = 0.00006
+        self.max_correction = 0.015
 
-        # self.waypoints = [(0.0040192379, 0.015), (-0.0040192379, 0.015), (-0.0109807621, 0.0109807621), (-0.015, 0.0040192379), (-0.015, -0.0040192379), (-0.0109807621, -0.0109807621), (-0.0040192379, -0.015), (0.0040192379, -0.015), (0.0109807621, -0.0109807621), (0.015, -0.0040192379), (0.015, 0.0040192379), (0.0109807621, 0.0109807621)]
-        self.waypoints = [(0.1, 0.0), (-0.1, 0.0)]
+        #self.waypoints = [(0.0040192379, 0.015), (-0.0040192379, 0.015), (-0.0109807621, 0.0109807621), (-0.015, 0.0040192379), (-0.015, -0.0040192379), (-0.0109807621, -0.0109807621), (-0.0040192379, -0.015), (0.0040192379, -0.015), (0.0109807621, -0.0109807621), (0.015, -0.0040192379), (0.015, 0.0040192379), (0.0109807621, 0.0109807621)]
+        #
+        self.waypoints = [(0.1, 0.0), (0.0, -0.03), (-0.1, 0.0), (0.0, 0.03)]
+        #self.waypoints = [(0.0345491503, 0.0475528258), (-0.0345491503, 0.0475528258), (-0.0559016994, -0.0181635632), (0.0, -0.0587785252), (0.0559016994, -0.0181635632)]
         self.current_force = 0.0
         self.current_pose_received = False
         self.target_pose = PoseStamped()
@@ -90,7 +92,7 @@ class FreeContactExperimentNode(Node):
         #self.surface_normal = np.array([0.7071068, 0, 0, 0.7071068], dtype=float)
         #self.surface_normal = np.array([0.0, 0.7071068, 0.0, 0.7071068], dtype=float)
         self.surface_normal = np.array([1.0, 0.0, 0.0, 0.0], dtype=float)
-        self.initial_orientation = np.array([1.0, 0, 0, 0.0], dtype=float)
+        self.initial_orientation = np.array([1.0, 0.0, 0.0, 0.0], dtype=float)
   
         # ROS Setup
         self.pose_pub = self.create_publisher(PoseStamped, 'target_pose', 10)
@@ -130,7 +132,7 @@ class FreeContactExperimentNode(Node):
     def publish_wrench(self, force_z):
         msg = WrenchStamped()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'hand'
+        msg.header.frame_id = 'fr3_link8'
         msg.wrench.force.z = force_z
         self.wrench_pub.publish(msg)
 
@@ -141,9 +143,9 @@ class FreeContactExperimentNode(Node):
             float(k_trans[0]),
             float(k_trans[1]),
             float(k_trans[2]),
-            float(38.0),
-            float(38.0),
-            float(38.0),
+            float(25.0),
+            float(25.0),
+            float(25.0),
         ]
 
         self.stiffness_pub.publish(msg)
@@ -305,6 +307,7 @@ class ContactSB(StateBehavior):
 
     def __init__(self):
         super().__init__()
+        self.log_freq = 0.5
         self.elapsed_time = 0.0
         self.trajectory = None
         self.acc_error = 0.0
@@ -348,7 +351,9 @@ class ContactSB(StateBehavior):
         p_offset = node.k_p * force_error_z
         total_z_correction = max(-node.max_correction, 
                              min(node.max_correction, p_offset + self.acc_error + d_offset))
-        print(f"Total correction: {total_z_correction: 8.4f} || I error: {self.acc_error: 8.4f} || P error: {p_offset: 8.4f} || F error: {force_error_z: 8.4f} || Curr F: {node.current_force: 8.4f}")
+        if self.elapsed_time > self.log_freq: 
+            print(f"Total correction: {total_z_correction: 8.4f} || I error (K_p): {p_offset: 8.4f} || P error (K_d): {d_offset: 8.4f} || F error: {force_error_z: 8.4f} || Curr F: {node.current_force: 8.4f}")
+            self.log_freq += 0.5
 
         if self.trajectory is None:
             return
@@ -390,16 +395,13 @@ class RetractSB(StateBehavior):
         local_z_in_world = rot.apply([0.0, 0.0, 1.0])
 
         # Retract 10mm (0.01m) away from surface
-        retract_dist = 0.002
+        retract_dist = 0.0005
 
         delta = retract_dist * local_z_in_world
         delta_norm = np.linalg.norm(delta)
 
         if delta_norm > 0.02 and delta_norm > 0:
             delta = (delta / delta_norm) * 0.02
-
-        print(f"Computed values: d = {delta} | |d| = {delta_norm}")
-        print(f"Retract distance = {local_z_in_world * retract_dist}")
 
         node.target_pose.pose.position.x -= float(local_z_in_world[0] * retract_dist)
         node.target_pose.pose.position.y -= float(local_z_in_world[1] * retract_dist)

@@ -16,6 +16,7 @@ from typing import Callable, Optional, Sequence
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped, WrenchStamped
+from sensor_msgs.msg import JointState
 
 
 # ----------------------------------------------------------------------
@@ -31,11 +32,22 @@ def pose_row(msg):
     p, q = msg.pose.position, msg.pose.orientation
     return [p.x, p.y, p.z, q.x, q.y, q.z, q.w]
 
+def q_twist_row(msg: JointState):
+    q, q_dot = msg.position, msg.velocity
+    return [q[0], q[1], q[2], q[3], q[4], q[5], q[6], q_dot[0], q_dot[1], q_dot[2], q_dot[3], q_dot[4], q_dot[5], q_dot[6]]
+
+def q_effort_row(msg: JointState):
+    q_tau = msg.effort
+    return [q_tau[0], q_tau[1], q_tau[2], q_tau[3], q_tau[4], q_tau[5], q_tau[6]]
+
 
 WRENCH_COLUMNS = ['force_x', 'force_y', 'force_z',
                   'torque_x', 'torque_y', 'torque_z']
 POSE_COLUMNS = ['pos_x', 'pos_y', 'pos_z',
                 'quat_x', 'quat_y', 'quat_z', 'quat_w']
+Q_TWIST_COLUMNS = ["pos_q0", "pos_q1", "pos_q2", "pos_q3", "pos_q4", "pos_q5", "pos_q6",
+                   "vel_q0", "vel_q1", "vel_q2", "vel_q3", "vel_q4", "vel_q5", "vel_q6"]
+Q_EFFORT_COLUMNS = ["effort_q0", "effort_q1", "effort_q2", "effort_q3", "effort_q4", "effort_q5", "effort_q6"]
 
 
 # ----------------------------------------------------------------------
@@ -97,6 +109,20 @@ CHANNELS = [
         columns=WRENCH_COLUMNS,
         extract=wrench_row,
     ),
+    ChannelSpec(
+        name="joint_position",
+        topic="/joint_states",
+        msg_type=JointState,
+        columns=Q_TWIST_COLUMNS,
+        extract=q_twist_row
+    ),
+    ChannelSpec(
+        name="joint_effort",
+        topic="/joint_states",
+        msg_type=JointState,
+        columns=Q_EFFORT_COLUMNS,
+        extract=q_effort_row
+    )
 ]
 
 TRIGGER = TriggerSpec(
