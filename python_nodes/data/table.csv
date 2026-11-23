@@ -1,5 +1,6 @@
-exp_num, speed (cm/s), rotation(xyz, deg), target_force_z(N), trajectory
-40, 1.0, 0;90;0, 0.7, "xline 10cm"
-41, 2.5, 0;90;0, 0.7, "xline 10cm"
-42, 1.0, 0;0;0, 0.7, "xline 10cm"
-43, 2,5, 0;0;0, 0.7, "xline 10cm"
+exp_num, speed (cm/s), rotation(xyz) (deg), target_force_z(N), trajectory
+40,1,90;0;0,0.7,xline 10cm
+41,2.5,90;0;0,0.7,xline 10cm
+42,1,0;0;0,0.7,xline 10cm
+43,2.5,0;0;0,0.7,xline 10cm
+70,1,0;0;0,1,10x3cm rectangle

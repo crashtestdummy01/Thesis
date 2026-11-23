@@ -110,7 +110,7 @@ CHANNELS = [
         extract=wrench_row,
     ),
     ChannelSpec(
-        name="joint_position",
+        name="joint_twist",
         topic="/joint_states",
         msg_type=JointState,
         columns=Q_TWIST_COLUMNS,

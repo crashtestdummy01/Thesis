@@ -59,7 +59,7 @@ class FreeContactExperimentNode(Node):
     def __init__(self):
         super().__init__('free_contact_node')
         self.logger = None
-        self.exp_number = 63
+        self.exp_number = 77
 
         # Configuration & Variables
         self.angular_speed = 0.1
@@ -67,8 +67,8 @@ class FreeContactExperimentNode(Node):
         self.reset_speed = 0.04
 
         self.contact_threshold_N = 0.5
-        self.target_push_force_z = 1.0
-        self.ff_wrench = 2.5
+        self.target_push_force_z = 0.7
+        self.ff_wrench = 2.0
         self.surface_offset = 0.005
         self.translation_speed = 0.01
         self.default_stiffness = [1100.0, 1100.0, 1100.0]
@@ -76,12 +76,12 @@ class FreeContactExperimentNode(Node):
         self.k_i = 0.000
         self.k_p = 0.0015
         self.k_d = 0.00006
-        self.max_correction = 0.015
+        self.max_correction = 0.02
 
         #self.waypoints = [(0.0040192379, 0.015), (-0.0040192379, 0.015), (-0.0109807621, 0.0109807621), (-0.015, 0.0040192379), (-0.015, -0.0040192379), (-0.0109807621, -0.0109807621), (-0.0040192379, -0.015), (0.0040192379, -0.015), (0.0109807621, -0.0109807621), (0.015, -0.0040192379), (0.015, 0.0040192379), (0.0109807621, 0.0109807621)]
         #
-        self.waypoints = [(0.1, 0.0), (0.0, -0.03), (-0.1, 0.0), (0.0, 0.03)]
-        #self.waypoints = [(0.0345491503, 0.0475528258), (-0.0345491503, 0.0475528258), (-0.0559016994, -0.0181635632), (0.0, -0.0587785252), (0.0559016994, -0.0181635632)]
+        #self.waypoints = [(0.1, 0.0), (0.0, -0.03), (-0.1, 0.0), (0.0, 0.03)]
+        self.waypoints = [(0.0345491503, 0.0475528258), (-0.0345491503, 0.0475528258), (-0.0559016994, -0.0181635632), (0.0, -0.0587785252), (0.0559016994, -0.0181635632)]
         self.current_force = 0.0
         self.current_pose_received = False
         self.target_pose = PoseStamped()
@@ -92,7 +92,7 @@ class FreeContactExperimentNode(Node):
         #self.surface_normal = np.array([0.7071068, 0, 0, 0.7071068], dtype=float)
         #self.surface_normal = np.array([0.0, 0.7071068, 0.0, 0.7071068], dtype=float)
         self.surface_normal = np.array([1.0, 0.0, 0.0, 0.0], dtype=float)
-        self.initial_orientation = np.array([1.0, 0.0, 0.0, 0.0], dtype=float)
+        self.initial_orientation = np.array([1.0, 0, 0, 0.0], dtype=float)
   
         # ROS Setup
         self.pose_pub = self.create_publisher(PoseStamped, 'target_pose', 10)
@@ -143,9 +143,9 @@ class FreeContactExperimentNode(Node):
             float(k_trans[0]),
             float(k_trans[1]),
             float(k_trans[2]),
-            float(25.0),
-            float(25.0),
-            float(25.0),
+            float(30.0),
+            float(30.0),
+            float(30.0),
         ]
 
         self.stiffness_pub.publish(msg)

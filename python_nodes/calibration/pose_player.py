@@ -37,8 +37,8 @@ class PosePlayer(Node):
         self.declare_parameter("csv_path", "calibration_poses.csv")
         self.declare_parameter("target_topic", "/target_pose")
         self.declare_parameter("rate_hz", 20.0)
-        self.declare_parameter("move_speed", 0.03)      # m/s
-        self.declare_parameter("angular_speed", 0.05)    # rad/s
+        self.declare_parameter("move_speed", 0.04)      # m/s
+        self.declare_parameter("angular_speed", 0.15)    # rad/s
         self.declare_parameter("settle_time", 1.0)      # s to wait after arrival before the service returns
         self.declare_parameter("move_timeout", 60.0)    # s
 

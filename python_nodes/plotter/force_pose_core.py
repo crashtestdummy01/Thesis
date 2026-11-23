@@ -1,8 +1,8 @@
 """
 Core of the force / pose experiment viewer (no GUI code in here).
 
- - file name parsing   (force_data-N, estimated_force_data-N, pose_data-N, target_pose_data-N)
- - CSV loading + cleaning
+ - file name parsing   (<kind>-N, see KINDS)
+ - CSV loading + cleaning, memory-friendly (float32 + size-limited LRU cache)
  - velocity / acceleration columns computed from pose_data (NOT target_pose_data)
  - plotly figure building from a list of subplot specifications
 
@@ -16,6 +16,7 @@ import re
 import threading
 import time
 import webbrowser
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
@@ -28,17 +29,23 @@ from plotly.subplots import make_subplots
 # --------------------------------------------------------------------------- #
 # Data layout
 # --------------------------------------------------------------------------- #
-KINDS = ["force_data", "estimated_force_data", "pose_data", "target_pose_data"]
-
 POSE_COLS = ["time_s", "pos_x", "pos_y", "pos_z", "quat_x", "quat_y", "quat_z", "quat_w"]
 FORCE_COLS = ["time_s", "force_x", "force_y", "force_z", "torque_x", "torque_y", "torque_z"]
+Q_TWIST_COLUMNS = ["time_s"] + [f"pos_q{i}" for i in range(7)] + [f"vel_q{i}" for i in range(7)]
+Q_EFFORT_COLUMNS = ["time_s"] + [f"effort_q{i}" for i in range(7)]
 
+# File name prefix -> expected columns. File names are "<prefix>-<number>[.csv]".
+# NOTE: the prefixes of the two q_* kinds are a guess -- rename them here if your
+# files are called something else (nothing else needs to change).
 BASE_COLUMNS = {
     "force_data": FORCE_COLS,
     "estimated_force_data": FORCE_COLS,
     "pose_data": POSE_COLS,
     "target_pose_data": POSE_COLS,
+    "joint_twist_data": Q_TWIST_COLUMNS,
+    "joint_effort_data": Q_EFFORT_COLUMNS,
 }
+KINDS = list(BASE_COLUMNS)
 
 # columns that add_derivatives() appends to pose_data
 DERIVED_COLS = [
@@ -52,7 +59,7 @@ SOURCE_COLUMNS = dict(BASE_COLUMNS)
 SOURCE_COLUMNS["pose_data"] = POSE_COLS + DERIVED_COLS
 
 _FILE_RE = re.compile(
-    r"^(estimated_force_data|force_data|pose_data|target_pose_data)-(\d+)(?:\.csv)?$",
+    r"^(" + "|".join(sorted(KINDS, key=len, reverse=True)) + r")-(\d+)(?:\.csv)?$",
     re.IGNORECASE,
 )
 
@@ -66,7 +73,7 @@ def parse_filename(path: str):
 
 
 def axis_options() -> list[str]:
-    """Labels for the axis dropdowns: 'source: column'."""
+    """Labels for the column picker: 'source: column'."""
     return [f"{kind}: {col}" for kind in KINDS for col in SOURCE_COLUMNS[kind]]
 
 
@@ -79,11 +86,12 @@ def split_axis(label: str) -> tuple[str, str]:
 # Loading
 # --------------------------------------------------------------------------- #
 def read_experiment_csv(path: str, kind: str) -> pd.DataFrame:
-    """Read one data file, keep the expected columns, coerce to numbers,
-    sort by time and drop duplicated time stamps."""
-    df = pd.read_csv(path)
-    df.columns = [str(c).strip() for c in df.columns]
+    """Read one data file (only the expected columns), coerce to numbers,
+    sort by time and drop duplicated time stamps. Returns float64."""
     expected = BASE_COLUMNS[kind]
+    wanted = set(expected)
+    df = pd.read_csv(path, usecols=lambda c: str(c).strip() in wanted)
+    df.columns = [str(c).strip() for c in df.columns]
     missing = [c for c in expected if c not in df.columns]
     if missing:
         raise ValueError(f"{os.path.basename(path)}: missing column(s) {', '.join(missing)}")
@@ -91,6 +99,11 @@ def read_experiment_csv(path: str, kind: str) -> pd.DataFrame:
     df = df.dropna(subset=["time_s"]).sort_values("time_s", kind="stable")
     df = df.drop_duplicates(subset="time_s", keep="first").reset_index(drop=True)
     return df
+
+
+def _compact(df: pd.DataFrame) -> pd.DataFrame:
+    """float32 for everything except time_s (time stamps need float64 precision)."""
+    return df.astype({c: np.float32 for c in df.columns if c != "time_s"})
 
 
 def normalize_exp_key(value) -> int | str:
@@ -210,12 +223,23 @@ def add_derivatives(df: pd.DataFrame, smooth: int = 1) -> pd.DataFrame:
 # Data store
 # --------------------------------------------------------------------------- #
 class DataStore:
-    """Knows which files belong to which experiment; loads them lazily and caches."""
+    """Knows which files belong to which experiment; loads them lazily.
 
-    def __init__(self):
+    Memory handling:
+      * files are only read when a plot needs them, and only the expected columns
+      * everything except time_s is stored as float32 (derivatives are still
+        computed in float64 first)
+      * loaded frames live in an LRU cache limited to `cache_mb`; the least recently
+        used files are dropped first and simply re-read if they are needed again
+    """
+
+    def __init__(self, cache_mb: int = 1024):
         self.files: dict[tuple[str, int], str] = {}
-        self._cache: dict = {}
+        self.cache_bytes = int(cache_mb) * 1024 * 1024
+        self._cache: OrderedDict[str, tuple] = OrderedDict()  # path -> (mtime, smooth, df, nbytes)
+        self._bytes = 0
 
+    # ---- bookkeeping ------------------------------------------------------- #
     def add_paths(self, paths) -> tuple[int, list[str]]:
         """Add files (or the files inside folders). Returns (#added, skipped names)."""
         added, skipped = 0, []
@@ -239,15 +263,22 @@ class DataStore:
     def has(self, kind: str, num) -> bool:
         return (kind, num) in self.files
 
+    def _drop_cached(self, path: str) -> None:
+        entry = self._cache.pop(path, None)
+        if entry:
+            self._bytes -= entry[3]
+
     def remove(self, nums) -> None:
         nums = set(nums)
         for key in [k for k in self.files if k[1] in nums]:
-            del self.files[key]
+            self._drop_cached(self.files.pop(key))
 
     def clear(self) -> None:
         self.files.clear()
         self._cache.clear()
+        self._bytes = 0
 
+    # ---- loading ----------------------------------------------------------- #
     def get(self, kind: str, num: int, smooth: int = 1):
         """DataFrame for (kind, experiment) or None if there is no such file.
         pose_data comes with the derived columns."""
@@ -255,13 +286,25 @@ class DataStore:
         if path is None:
             return None
         s = smooth if kind == "pose_data" else 1
-        key = (path, os.path.getmtime(path), s)
-        if key not in self._cache:
-            df = read_experiment_csv(path, kind)
-            if kind == "pose_data":
-                df = add_derivatives(df, s)
-            self._cache[key] = df
-        return self._cache[key]
+        mtime = os.path.getmtime(path)
+        hit = self._cache.get(path)
+        if hit and hit[0] == mtime and hit[1] == s:
+            self._cache.move_to_end(path)
+            return hit[2]
+
+        df = read_experiment_csv(path, kind)
+        if kind == "pose_data":
+            df = add_derivatives(df, s)
+        df = _compact(df)
+
+        self._drop_cached(path)
+        nbytes = int(df.memory_usage(index=True).sum())
+        self._cache[path] = (mtime, s, df, nbytes)
+        self._bytes += nbytes
+        while self._bytes > self.cache_bytes and len(self._cache) > 1:
+            _, evicted = self._cache.popitem(last=False)
+            self._bytes -= evicted[3]
+        return df
 
 
 # --------------------------------------------------------------------------- #
@@ -271,12 +314,14 @@ class DataStore:
 class TraceSpec:
     x: str  # "source: column"
     y: str
+    axis: int = 1  # y-axis group; only used when the subplot has split_y set
 
 
 @dataclass
 class SubplotSpec:
     traces: list[TraceSpec] = field(default_factory=list)
     equal_aspect: bool = False  # lock x:y scaling to 1:1 (e.g. for x/y pose plots)
+    split_y: bool = False  # traces with different `axis` numbers get their own y axis
 
 
 class MissingData(Exception):
@@ -310,24 +355,83 @@ def resolve_xy(store: DataStore, num: int, trace: TraceSpec, smooth: int):
         return np.array([]), np.array([])
     tx, ty = dfx["time_s"].to_numpy(), dfy["time_s"].to_numpy()
     mask = (tx >= ty[0]) & (tx <= ty[-1])
-    return dfx[xc].to_numpy()[mask], np.interp(tx[mask], ty, dfy[yc].to_numpy())
+    y = np.interp(tx[mask], ty, dfy[yc].to_numpy().astype(np.float64)).astype(np.float32)
+    return dfx[xc].to_numpy()[mask], y
+
+
+def decimate(x: np.ndarray, y: np.ndarray, max_points: int):
+    """Min/max decimation: keep the lowest and highest y of every bucket of samples,
+    so spikes survive. max_points <= 0 keeps everything."""
+    n = len(y)
+    if max_points <= 0 or n <= max_points:
+        return x, y
+    buckets = max(max_points // 2, 1)
+    edges = np.linspace(0, n, buckets + 1).astype(int)
+    keep = []
+    for a, b in zip(edges[:-1], edges[1:]):
+        if b <= a:
+            continue
+        seg = y[a:b]
+        if np.all(np.isnan(seg)):
+            keep.append(a)
+        else:
+            keep.extend((a + int(np.nanargmin(seg)), a + int(np.nanargmax(seg))))
+    idx = np.unique(keep)
+    return x[idx], y[idx]
+
+
+def _yref(k: int) -> str:
+    return "y" if k == 1 else f"y{k}"
+
+
+def _xref(k: int) -> str:
+    return "x" if k == 1 else f"x{k}"
+
+
+def _ylayout(k: int) -> str:
+    return "yaxis" if k == 1 else f"yaxis{k}"
 
 
 def build_figure(store: DataStore, experiments: list[int], subplots: list[SubplotSpec],
-                 smooth: int = 1, height_per_plot: int = 380):
-    """One plotly figure, one row per subplot spec. Colour = experiment,
-    line dash = trace index within the subplot. Returns (figure, warnings)."""
+                 smooth: int = 1, height_per_plot: int = 380, max_points: int = 0):
+    """One plotly figure, one row per subplot spec.
+
+    Every plotted series (experiment x y-column) gets its own colour, the same one
+    everywhere in the figure. With `split_y`, traces are grouped by their `axis`
+    number and every group gets its own y axis (alternating left / right).
+    Returns (figure, warnings).
+    """
     n = len(subplots)
     fig = make_subplots(rows=n, cols=1, vertical_spacing=min(0.08, 0.9 / max(n - 1, 1)))
-    palette = qualitative.Plotly
-    colors = {num: palette[i % len(palette)] for i, num in enumerate(experiments)}
-    dashes = ["solid", "dash", "dot", "dashdot", "longdash", "longdashdot"]
+    palette = list(qualitative.Plotly) + list(qualitative.Dark24)
+    colors: dict[str, str] = {}
+
+    def color_of(name: str) -> str:
+        if name not in colors:
+            colors[name] = palette[len(colors) % len(palette)]
+        return colors[name]
+
+    # --- plan the y axes of every subplot -------------------------------------
+    plans = []  # per subplot: (group index of every trace, plotly axis number of every group)
+    next_axis = n + 1
+    for row, spec in enumerate(subplots, start=1):
+        if spec.split_y:
+            order = list(dict.fromkeys(t.axis for t in spec.traces))
+            group_of = [order.index(t.axis) for t in spec.traces]
+        else:
+            order, group_of = [None], [0] * len(spec.traces)
+        axis_ids = [row]
+        for _ in order[1:]:
+            axis_ids.append(next_axis)
+            next_axis += 1
+        plans.append((group_of, axis_ids))
+
+    # --- traces (experiment outermost so each experiment's files are read once) ---
     warnings: set[str] = set()
     shown: set[str] = set()
-
-    for row, spec in enumerate(subplots, start=1):
-        for ti, tr in enumerate(spec.traces):
-            for num in experiments:
+    for num in experiments:
+        for row, (spec, (group_of, axis_ids)) in enumerate(zip(subplots, plans), start=1):
+            for ti, tr in enumerate(spec.traces):
                 try:
                     x, y = resolve_xy(store, num, tr, smooth)
                 except MissingData as e:
@@ -336,30 +440,67 @@ def build_figure(store: DataStore, experiments: list[int], subplots: list[Subplo
                 except Exception as e:  # unreadable / malformed file
                     warnings.add(f"exp {num}: {e}")
                     continue
+                x, y = decimate(x, y, max_points)
                 name = f"exp {num} | {tr.y}"
                 fig.add_trace(
                     go.Scattergl(
                         x=x, y=y, mode="lines", name=name, legendgroup=name,
                         showlegend=name not in shown,
-                        line=dict(color=colors[num], dash=dashes[ti % len(dashes)], width=1.5),
+                        line=dict(color=color_of(name), width=1.5),
                     ),
                     row=row, col=1,
                 )
                 shown.add(name)
-        xt = " / ".join(dict.fromkeys(t.x for t in spec.traces))
-        yt = " / ".join(dict.fromkeys(t.y for t in spec.traces))
-        fig.update_xaxes(title_text=xt, row=row, col=1)
-        fig.update_yaxes(title_text=yt, row=row, col=1)
-        if spec.equal_aspect:
-            # anchor this subplot's y axis to its x axis with ratio 1 -> same units per pixel
-            fig.update_yaxes(scaleanchor="x" if row == 1 else f"x{row}", scaleratio=1,
+                if group_of[ti] > 0:
+                    fig.data[-1].yaxis = _yref(axis_ids[group_of[ti]])
+
+    # --- axes layout ---------------------------------------------------------------
+    step = 0.075  # paper-width reserved per extra y axis
+    for row, (spec, (group_of, axis_ids)) in enumerate(zip(subplots, plans), start=1):
+        fig.update_xaxes(title_text=" / ".join(dict.fromkeys(t.x for t in spec.traces)),
+                         row=row, col=1)
+        groups = len(axis_ids)
+        if groups == 1:
+            fig.update_yaxes(title_text=" / ".join(dict.fromkeys(t.y for t in spec.traces)),
                              row=row, col=1)
+            if spec.equal_aspect:
+                # anchor y to x with ratio 1 -> same units per pixel on both axes
+                fig.update_yaxes(scaleanchor=_xref(row), scaleratio=1, row=row, col=1)
+            continue
+
+        # split y axes (the 1:1 lock is ignored here: it only makes sense for one y axis)
+        n_left, n_right = (groups + 1) // 2, groups // 2
+        x0, x1 = step * (n_left - 1), 1 - step * n_right
+        fig.update_xaxes(domain=[x0, x1], row=row, col=1)
+        domain = list(getattr(fig.layout, _ylayout(row)).domain)
+        for g, k in enumerate(axis_ids):
+            labels = list(dict.fromkeys(
+                t.y for ti, t in enumerate(spec.traces) if group_of[ti] == g))
+            props: dict = {"title": {"text": " / ".join(labels)}}
+            if len(experiments) == 1 and len(labels) == 1:
+                name = f"exp {experiments[0]} | {labels[0]}"
+                if name in colors:  # tint the axis like its trace
+                    props["color"] = colors[name]
+            if g == 0:
+                fig.update_layout({_ylayout(k): props})
+                continue
+            side, j = ("left" if g % 2 == 0 else "right"), g // 2
+            props.update(
+                overlaying=_yref(row), side=side, domain=domain,
+                showgrid=False, zeroline=False,
+                anchor=_xref(row) if (side == "right" and j == 0) else "free",
+                position=(x0 - step * j) if side == "left" else (x1 + step * j),
+            )
+            fig.update_layout({_ylayout(k): props})
 
     fig.update_layout(height=max(500, height_per_plot * n), template="plotly_white",
-                      margin=dict(l=70, r=30, t=40, b=60))
+                      margin=dict(l=70, r=70, t=40, b=60))
     return fig, sorted(warnings)
 
 
+# --------------------------------------------------------------------------- #
+# Output
+# --------------------------------------------------------------------------- #
 PLOT_DIR = os.path.join(os.path.expanduser("~"), "force_pose_plots")
 _server = None
 

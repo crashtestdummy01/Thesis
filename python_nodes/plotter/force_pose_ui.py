@@ -22,6 +22,95 @@ DEFAULT_Y = "force_data: force_z"
 
 
 # --------------------------------------------------------------------------- #
+# Column picker popup
+# --------------------------------------------------------------------------- #
+class AxisPicker(tk.Toplevel):
+    """Modal popup: filter box + tree of sources -> columns."""
+
+    def __init__(self, anchor: tk.Widget, options: list[str], current: str):
+        super().__init__(anchor)
+        self.title("Select column")
+        self.transient(anchor.winfo_toplevel())
+        self.options, self.current = options, current
+        self.result: str | None = None
+        self._labels: dict[str, str] = {}  # tree iid -> "source: column"
+        self.filter_var = tk.StringVar()
+
+        top = ttk.Frame(self, padding=(8, 8, 8, 4))
+        top.pack(fill="x")
+        ttk.Label(top, text="Filter:").pack(side="left")
+        entry = ttk.Entry(top, textvariable=self.filter_var)
+        entry.pack(side="left", fill="x", expand=True, padx=(4, 0))
+        entry.focus_set()
+
+        mid = ttk.Frame(self, padding=(8, 0))
+        mid.pack(fill="both", expand=True)
+        self.tree = ttk.Treeview(mid, show="tree", selectmode="browse", height=18)
+        vsb = ttk.Scrollbar(mid, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=vsb.set)
+        self.tree.pack(side="left", fill="both", expand=True)
+        vsb.pack(side="right", fill="y")
+
+        bottom = ttk.Frame(self, padding=8)
+        bottom.pack(fill="x")
+        ttk.Button(bottom, text="Cancel", command=self.destroy).pack(side="right")
+        ttk.Button(bottom, text="OK", command=self._ok).pack(side="right", padx=6)
+
+        self.filter_var.trace_add("write", lambda *_: self._rebuild())
+        self.tree.bind("<Double-1>", self._on_double)
+        self.bind("<Return>", lambda e: self._ok())
+        self.bind("<Escape>", lambda e: self.destroy())
+        self._rebuild(initial=True)
+
+        self.update_idletasks()
+        x = anchor.winfo_rootx()
+        y = min(anchor.winfo_rooty() + anchor.winfo_height(), max(self.winfo_screenheight() - 520, 0))
+        self.geometry(f"380x480+{x}+{y}")
+        self.wait_visibility()
+        self.grab_set()
+
+    def _rebuild(self, initial: bool = False):
+        words = self.filter_var.get().lower().split()
+        self.tree.delete(*self.tree.get_children())
+        self._labels.clear()
+        groups: dict[str, list[str]] = {}
+        for label in self.options:
+            if all(w in label.lower() for w in words):
+                groups.setdefault(label.split(": ", 1)[0], []).append(label)
+        current_src = self.current.split(": ", 1)[0] if self.current else None
+        for gi, (src, labels) in enumerate(groups.items()):
+            parent = self.tree.insert("", "end", iid=f"s{gi}", text=f"{src}  ({len(labels)})",
+                                      open=bool(words) or (initial and src == current_src))
+            for li, label in enumerate(labels):
+                iid = f"s{gi}_{li}"
+                self.tree.insert(parent, "end", iid=iid, text=label.split(": ", 1)[1])
+                self._labels[iid] = label
+                if initial and label == self.current:
+                    self.tree.selection_set(iid)
+                    self.tree.see(iid)
+        if words and self._labels:
+            self.tree.selection_set(next(iter(self._labels)))
+
+    def _on_double(self, event):
+        iid = self.tree.identify_row(event.y)
+        if iid in self._labels:
+            self.tree.selection_set(iid)
+            self._ok()
+
+    def _ok(self):
+        sel = self.tree.selection()
+        if sel and sel[0] in self._labels:
+            self.result = self._labels[sel[0]]
+            self.destroy()
+
+
+def pick_column(anchor: tk.Widget, options: list[str], current: str) -> str | None:
+    dlg = AxisPicker(anchor, options, current)
+    anchor.wait_window(dlg)
+    return dlg.result
+
+
+# --------------------------------------------------------------------------- #
 # Small widgets
 # --------------------------------------------------------------------------- #
 class ScrollFrame(ttk.Frame):
@@ -52,7 +141,7 @@ class ScrollFrame(ttk.Frame):
     def _on_wheel(self, e):
         try:
             target = self.winfo_containing(e.x_root, e.y_root)
-        except KeyError:  # e.g. a combobox popdown
+        except KeyError:
             return
         if not self._inside(target):
             return
@@ -66,25 +155,38 @@ class ScrollFrame(ttk.Frame):
 
 
 class TraceRow(ttk.Frame):
-    """One x/y pair of dropdowns."""
+    """One trace: x column, y column (both chosen in a popup) and y-axis number."""
 
-    def __init__(self, master, options, on_remove, x, y):
+    def __init__(self, master, options, on_remove, x, y, axis):
         super().__init__(master)
+        self.options = options
         self.x_var, self.y_var = tk.StringVar(value=x), tk.StringVar(value=y)
+        self.axis_var = tk.StringVar(value=str(axis))
         ttk.Label(self, text="x:").pack(side="left")
-        ttk.Combobox(self, textvariable=self.x_var, values=options, state="readonly",
-                     width=34).pack(side="left", padx=(2, 10))
+        ttk.Button(self, textvariable=self.x_var, width=32,
+                   command=lambda: self._pick(self.x_var)).pack(side="left", padx=(2, 10))
         ttk.Label(self, text="y:").pack(side="left")
-        ttk.Combobox(self, textvariable=self.y_var, values=options, state="readonly",
-                     width=34).pack(side="left", padx=(2, 10))
+        ttk.Button(self, textvariable=self.y_var, width=32,
+                   command=lambda: self._pick(self.y_var)).pack(side="left", padx=(2, 10))
+        ttk.Label(self, text="y-axis #:").pack(side="left")
+        ttk.Spinbox(self, from_=1, to=8, width=3, textvariable=self.axis_var).pack(side="left", padx=(2, 10))
         ttk.Button(self, text="✕", width=3, command=lambda: on_remove(self)).pack(side="left")
 
-    def get(self):
-        return self.x_var.get(), self.y_var.get()
+    def _pick(self, var: tk.StringVar):
+        label = pick_column(self, self.options, var.get())
+        if label:
+            var.set(label)
+
+    def get(self) -> TraceSpec:
+        try:
+            axis = max(1, int(self.axis_var.get()))
+        except ValueError:
+            axis = 1
+        return TraceSpec(self.x_var.get(), self.y_var.get(), axis)
 
 
 class SubplotPanel(ttk.LabelFrame):
-    """One subplot: one or more traces (x/y dropdown pairs)."""
+    """One subplot: one or more traces."""
 
     def __init__(self, master, options, on_remove):
         super().__init__(master, padding=6)
@@ -93,17 +195,24 @@ class SubplotPanel(ttk.LabelFrame):
         head = ttk.Frame(self)
         head.pack(fill="x")
         ttk.Button(head, text="+ Trace", command=self.add_trace).pack(side="left")
+        self.split_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(head, text="Split y axes (traces with the same y-axis # share one)",
+                        variable=self.split_var).pack(side="left", padx=12)
         self.equal_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(head, text="Lock axis scaling (1:1)",
-                        variable=self.equal_var).pack(side="left", padx=12)
+                        variable=self.equal_var).pack(side="left", padx=4)
         ttk.Button(head, text="Remove subplot", command=lambda: on_remove(self)).pack(side="right")
         self.body = ttk.Frame(self)
         self.body.pack(fill="x", pady=(4, 0))
         self.add_trace()
 
     def add_trace(self):
-        x, y = self.rows[-1].get() if self.rows else (DEFAULT_X, DEFAULT_Y)
-        row = TraceRow(self.body, self.options, self.remove_trace, x, y)
+        if self.rows:
+            prev = self.rows[-1].get()
+            x, y = prev.x, prev.y
+        else:
+            x, y = DEFAULT_X, DEFAULT_Y
+        row = TraceRow(self.body, self.options, self.remove_trace, x, y, len(self.rows) + 1)
         row.pack(fill="x", pady=1)
         self.rows.append(row)
 
@@ -114,8 +223,9 @@ class SubplotPanel(ttk.LabelFrame):
         row.destroy()
 
     def get_spec(self) -> SubplotSpec:
-        return SubplotSpec([TraceSpec(*r.get()) for r in self.rows],
-                           equal_aspect=self.equal_var.get())
+        return SubplotSpec([r.get() for r in self.rows],
+                           equal_aspect=self.equal_var.get(),
+                           split_y=self.split_var.get())
 
 
 # --------------------------------------------------------------------------- #
@@ -125,7 +235,7 @@ class App:
     def __init__(self, root: tk.Tk, initial_paths=()):
         self.root = root
         root.title("Force / pose experiment viewer")
-        root.geometry("1300x850")
+        root.geometry("1350x850")
         self.store = DataStore()
         self.desc_cols: list[str] = []
         self.desc_rows: dict = {}
@@ -133,6 +243,7 @@ class App:
         self.options = axis_options()
         self.panels: list[SubplotPanel] = []
         self.smooth_var = tk.StringVar(value="1")
+        self.maxpts_var = tk.StringVar(value="0")
         self.status = tk.StringVar(value="Add data files to start.")
         self._build_ui()
         if initial_paths:
@@ -184,6 +295,9 @@ class App:
         ttk.Button(bar2, text="+ Add subplot", command=self.add_panel).pack(side="left")
         ttk.Label(bar2, text="   Derivative smoothing (samples):").pack(side="left")
         ttk.Spinbox(bar2, from_=1, to=999, width=5, textvariable=self.smooth_var).pack(side="left", padx=4)
+        ttk.Label(bar2, text="   Max points per trace (0 = all):").pack(side="left")
+        ttk.Spinbox(bar2, from_=0, to=10_000_000, increment=10_000, width=9,
+                    textvariable=self.maxpts_var).pack(side="left", padx=4)
         ttk.Button(bar2, text="Plot ▶", command=self.plot).pack(side="right")
         ttk.Button(bar2, text="Save HTML…", command=self.save_html).pack(side="right", padx=6)
 
@@ -201,7 +315,7 @@ class App:
             if i == 0:
                 self.tree.column(cid, width=60, anchor="center", stretch=False)
             elif i <= len(KINDS):
-                self.tree.column(cid, width=140, anchor="center", stretch=False)
+                self.tree.column(cid, width=130, anchor="center", stretch=False)
             else:
                 self.tree.column(cid, width=170, anchor="w", stretch=False)
 
@@ -283,6 +397,14 @@ class App:
             p.configure(text=f"Subplot {i}")
 
     # ---- plotting ---------------------------------------------------------- #
+    def _int(self, var: tk.StringVar, minimum: int, default: int) -> int:
+        try:
+            value = max(minimum, int(var.get()))
+        except ValueError:
+            value = default
+        var.set(str(value))
+        return value
+
     def _collect(self):
         keys = [self._keys[i] for i in self.tree.selection()]
         nums = sorted(k for k in keys if isinstance(k, int)
@@ -294,22 +416,19 @@ class App:
         if not self.panels:
             messagebox.showwarning("No subplots", "Add at least one subplot.")
             return None
-        try:
-            smooth = max(1, int(self.smooth_var.get()))
-        except ValueError:
-            smooth = 1
-            self.smooth_var.set("1")
-        return nums, [p.get_spec() for p in self.panels], smooth
+        smooth = self._int(self.smooth_var, 1, 1)
+        max_points = self._int(self.maxpts_var, 0, 0)
+        return nums, [p.get_spec() for p in self.panels], smooth, max_points
 
     def _render(self, save_path=None):
         collected = self._collect()
         if collected is None:
             return
-        nums, specs, smooth = collected
+        nums, specs, smooth, max_points = collected
         self.status.set("Loading data and building figure…")
         self.root.update_idletasks()
         try:
-            fig, warns = build_figure(self.store, nums, specs, smooth)
+            fig, warns = build_figure(self.store, nums, specs, smooth, max_points=max_points)
             if not fig.data:
                 self.status.set("Nothing to plot.")
                 messagebox.showwarning("Nothing to plot", "\n".join(warns[:20]) or "No data found.")
